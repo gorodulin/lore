@@ -1,0 +1,9 @@
+*.pyc
+logs/
+.claude/plans/
+.claude/cache/
+.unused/
+.claude/skills/
+.DS_Store
+.ruff_cache/
+.pytest_cache/
