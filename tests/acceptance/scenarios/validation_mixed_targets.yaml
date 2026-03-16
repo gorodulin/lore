@@ -1,0 +1,35 @@
+# Scenario: Mixed file/folder target detection
+# Tests that facts mixing file and folder globs are identified
+
+description: "Detect facts that mix file-targeting and folder-targeting globs"
+
+rules:
+  mixed-targets:
+    fact: "Mixes files and directories"
+    incl:
+      - "g:**/*.js"  # targets files
+      - "g:src/"     # targets directory
+
+  files-only:
+    fact: "Only targets files"
+    incl:
+      - "g:**/*.js"
+      - "g:**/*.ts"
+
+  dirs-only:
+    fact: "Only targets directories"
+    incl:
+      - "g:src/"
+      - "g:lib/"
+
+  mixed-in-skip:
+    fact: "Mixed in skip"
+    incl:
+      - "g:**/*.js"
+    skip:
+      - "g:vendor/"  # dir in skip while incl targets files
+
+expected_warnings:
+  mixed_targets:
+    - mixed-targets
+    - mixed-in-skip

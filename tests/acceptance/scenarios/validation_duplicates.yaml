@@ -1,0 +1,33 @@
+# Scenario: Duplicate matcher detection
+# Tests that duplicate matchers are identified within facts
+
+description: "Detect duplicate matchers within and across incl/skip"
+
+rules:
+  dup-in-incl:
+    fact: "Has duplicate in incl"
+    incl:
+      - "g:**/*.js"
+      - "g:**/*.ts"
+      - "g:**/*.js"  # duplicate
+
+  dup-across:
+    fact: "Same matcher in incl and skip"
+    incl:
+      - "g:**/*.js"
+    skip:
+      - "g:**/*.js"  # same as incl
+
+  no-dups:
+    fact: "Clean fact with no duplicates"
+    incl:
+      - "g:**/*.py"
+    skip:
+      - "g:vendor/**"
+
+expected_warnings:
+  duplicates:
+    dup-in-incl:
+      - "g:**/*.js"
+    dup-across:
+      - "g:**/*.js"

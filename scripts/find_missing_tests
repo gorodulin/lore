@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+def find_python_files(folder):
+    """Recursively find all .py files in a folder."""
+    python_files = []
+    for root, _, files in os.walk(folder):
+        for file in files:
+            if file.endswith('.py'):
+                relative_path = os.path.relpath(os.path.join(root, file), folder)
+                python_files.append(relative_path)
+    return python_files
+
+def compare_folders(source_folder, test_folder):
+    """Compare source and test folders for missing test files."""
+    source_files = find_python_files(source_folder)
+    test_files = find_python_files(test_folder)
+
+    # Set of all test files relative to test_folder
+    test_files_set = set(test_files)
+
+    missing_tests = []
+    for source_file in source_files:
+        base_name = os.path.basename(source_file)
+        if base_name == "__init__.py":
+            continue  # Ignore __init__.py files
+        dir_name = os.path.dirname(source_file)
+        expected_test_file = os.path.join(dir_name, f"test_{base_name}")
+        if expected_test_file not in test_files_set:
+            missing_tests.append(os.path.join(source_folder, source_file))
+
+    return missing_tests
+
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python report_tests.py <source_folder> <test_folder>")
+        sys.exit(1)
+
+    source_folder = sys.argv[1]
+    test_folder = sys.argv[2]
+
+    if not os.path.isdir(source_folder):
+        print(f"Error: Source folder '{source_folder}' does not exist or is not a directory.")
+        sys.exit(1)
+
+    if not os.path.isdir(test_folder):
+        print(f"Error: Test folder '{test_folder}' does not exist or is not a directory.")
+        sys.exit(1)
+
+    missing_tests = compare_folders(source_folder, test_folder)
+
+    if missing_tests:
+        print("# These project files dont' have corresponding tests:")
+        for missing in missing_tests:
+            print(f"- {missing}")
+    else:
+        print("All source files have corresponding tests.")
+
+if __name__ == "__main__":
+    main()

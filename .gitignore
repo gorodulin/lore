@@ -1,9 +1,9 @@
+.claude/
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.unused/
 *.pyc
 logs/
-.claude/plans/
-.claude/cache/
-.unused/
-.claude/skills/
-.DS_Store
-.ruff_cache/
-.pytest_cache/
+docs/
+.lore.json

@@ -1,0 +1,49 @@
+# Scenario: Wildcard in path segments
+# Tests single * wildcard behavior within path segments
+# Note: Our minimal glob only allows ONE * per segment
+
+description: "Single wildcard (*) matches within a single path segment only"
+
+rules:
+  prefix-wildcard:
+    fact: "Files starting with test_"
+    incl:
+      - "g:**/test_*.py"
+
+  suffix-wildcard:
+    fact: "TypeScript declaration files"
+    incl:
+      - "g:**/*.d.ts"
+
+  component-suffix:
+    fact: "Files ending with Component.tsx"
+    incl:
+      - "g:**/*Component.tsx"
+
+paths:
+  - test_utils.py
+  - src/test_api.py
+  - src/utils.py
+  - types/index.d.ts
+  - src/api.d.ts
+  - main.ts
+  - UserComponent.tsx
+  - src/ButtonComponent.tsx
+  - src/Button.tsx
+
+expected:
+  test_utils.py:
+    - prefix-wildcard
+  src/test_api.py:
+    - prefix-wildcard
+  src/utils.py: []
+  types/index.d.ts:
+    - suffix-wildcard
+  src/api.d.ts:
+    - suffix-wildcard
+  main.ts: []
+  UserComponent.tsx:
+    - component-suffix
+  src/ButtonComponent.tsx:
+    - component-suffix
+  src/Button.tsx: []

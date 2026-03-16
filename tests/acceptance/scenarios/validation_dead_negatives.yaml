@@ -1,0 +1,33 @@
+# Scenario: Dead negative detection
+# Tests that negatives which can't exclude anything are identified
+
+description: "Detect negatives that cannot exclude any path matched by positives"
+
+rules:
+  dead-negative:
+    fact: "Has a dead negative"
+    incl:
+      - "g:src/**/*.js"
+    skip:
+      - "g:vendor/**"  # can never match src/ paths
+
+  valid-negative:
+    fact: "Has a valid negative"
+    incl:
+      - "g:src/**/*.js"
+    skip:
+      - "g:src/vendor/**"  # can exclude src/vendor/*.js
+
+  globstar-incl:
+    fact: "Globstar incl matches anything"
+    incl:
+      - "g:**/*.js"  # matches everywhere
+    skip:
+      - "g:vendor/**"  # valid - could match vendor/*.js
+
+expected_warnings:
+  dead_negatives:
+    dead-negative:
+      - "g:vendor/**"
+    valid-negative: []
+    globstar-incl: []

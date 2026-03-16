@@ -1,0 +1,33 @@
+# Scenario: Directory vs file matching
+# Tests that trailing / distinguishes directories from files
+
+description: "Facts can target directories (trailing /) or files (no trailing /)"
+
+rules:
+  source-dirs:
+    fact: "Source directories"
+    incl:
+      - "g:src/**/"
+
+  js-files:
+    fact: "JavaScript files"
+    incl:
+      - "g:**/*.js"
+
+paths:
+  - src/
+  - src/api/
+  - src/api/users.js
+  - lib/
+  - lib/util.js
+
+expected:
+  src/:
+    - source-dirs
+  src/api/:
+    - source-dirs
+  src/api/users.js:
+    - js-files
+  lib/: []
+  lib/util.js:
+    - js-files

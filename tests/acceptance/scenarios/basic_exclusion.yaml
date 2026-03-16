@@ -1,0 +1,26 @@
+# Scenario: Basic exclusion behavior
+# Tests that negatives exclude regardless of positives
+
+description: "Negative matchers exclude paths even when positives match"
+
+rules:
+  js-except-vendor:
+    fact: "JavaScript files except vendor directory"
+    incl:
+      - "g:**/*.js"
+    skip:
+      - "g:vendor/**"
+
+paths:
+  - src/app.js
+  - src/utils/helper.js
+  - vendor/lib.js
+  - vendor/plugins/widget.js
+
+expected:
+  src/app.js:
+    - js-except-vendor
+  src/utils/helper.js:
+    - js-except-vendor
+  vendor/lib.js: []
+  vendor/plugins/widget.js: []

@@ -1,0 +1,43 @@
+# Scenario: Root level file matching
+# Tests patterns that match files at the project root
+
+description: "Patterns correctly match files at project root level"
+
+rules:
+  root-configs:
+    fact: "Root config files"
+    incl:
+      - "g:*.json"
+      - "g:*.yaml"
+      - "g:*.yml"
+
+  all-markdown:
+    fact: "All markdown files"
+    incl:
+      - "g:**/*.md"
+
+  nested-only:
+    fact: "Only nested files"
+    incl:
+      - "g:*/**/*.js"  # requires at least one dir
+
+paths:
+  - package.json
+  - config.yaml
+  - README.md
+  - docs/guide.md
+  - src/app.js
+  - app.js
+
+expected:
+  package.json:
+    - root-configs
+  config.yaml:
+    - root-configs
+  README.md:
+    - all-markdown
+  docs/guide.md:
+    - all-markdown
+  src/app.js:
+    - nested-only
+  app.js: []  # nested-only requires a directory prefix

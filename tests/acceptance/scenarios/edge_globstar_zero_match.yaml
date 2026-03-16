@@ -1,0 +1,27 @@
+# Scenario: Globstar zero-segment match
+# Tests that ** can match zero segments (e.g., src/**/file.js matches src/file.js)
+
+description: "Globstar (**) matches zero or more path segments"
+
+rules:
+  globstar-fact:
+    fact: "Pattern with globstar"
+    incl:
+      - "g:src/**/app.js"
+
+paths:
+  - src/app.js           # ** matches zero segments
+  - src/foo/app.js       # ** matches one segment
+  - src/foo/bar/app.js   # ** matches two segments
+  - app.js               # no match - missing src/ prefix
+  - src/app.ts           # no match - wrong extension
+
+expected:
+  src/app.js:
+    - globstar-fact
+  src/foo/app.js:
+    - globstar-fact
+  src/foo/bar/app.js:
+    - globstar-fact
+  app.js: []
+  src/app.ts: []

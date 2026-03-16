@@ -1,0 +1,23 @@
+# Scenario: Non-glob matchers are not prefixed
+# Tests that regex and string matchers are preserved unchanged during merge
+
+description: "Non-glob matchers (r:, s:) are not prefixed during merge"
+
+tree:
+  src:
+    .lore.json:
+      mixed-matchers:
+        fact: "Mix of matcher types"
+        incl:
+          - "g:**/*.js" # glob - will be prefixed
+          - "r:.*\\.test\\.js$" # regex - unchanged
+        skip:
+          - "g:vendor/**" # glob - will be prefixed
+
+expected_merged:
+  mixed-matchers:
+    incl:
+      - "g:src/**/*.js"
+      - "r:.*\\.test\\.js$"
+    skip:
+      - "g:src/vendor/**"

@@ -1,0 +1,25 @@
+import sys
+import traceback
+
+from lore.facts.match_facts_for_path import match_facts_for_path as match_facts_impl
+
+
+def match_facts_for_path(project_root: str, file_path: str, content: str | None = None) -> dict[str, dict]:
+    """Run the full matching pipeline and return facts matching a file path.
+
+    Thin error-swallowing wrapper around lore.facts.match_facts_for_path
+    for use in Claude hook handlers where errors must never propagate.
+
+    Returns ``{}`` on any error (invalid root, no facts, validation
+    failure, path outside project, etc.).
+
+    Args:
+        project_root: Absolute path to the project root directory
+        file_path: Path to match (absolute or relative to project_root)
+        content: Optional file content for regex matchers
+    """
+    try:
+        return match_facts_impl(project_root, file_path, content=content)
+    except Exception:
+        print(traceback.format_exc(), file=sys.stderr)
+        return {}

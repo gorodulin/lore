@@ -1,0 +1,34 @@
+# Scenario: Merging rules from nested directories
+# Tests that patterns are correctly prefixed when merging from subdirectories
+
+description: "Patterns are prefixed with their directory path when merged"
+
+tree:
+  .lore.json:
+    root-fact:
+      fact: "Root level patterns"
+      incl: ["g:*.md", "g:*.txt"]
+
+  src:
+    .lore.json:
+      src-fact:
+        fact: "Source patterns"
+        incl: ["g:**/*.js"]
+        skip: ["g:vendor/**"]
+
+    api:
+      .lore.json:
+        api-fact:
+          fact: "API patterns"
+          incl: ["g:*.ts"]
+
+expected_merged:
+  root-fact:
+    incl: ["g:*.md", "g:*.txt"]
+
+  src-fact:
+    incl: ["g:src/**/*.js"]
+    skip: ["g:src/vendor/**"]
+
+  api-fact:
+    incl: ["g:src/api/*.ts"]

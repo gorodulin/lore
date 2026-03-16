@@ -1,0 +1,41 @@
+# Scenario: Multiple facts matching same path
+# Tests that a path can match multiple independent facts
+
+description: "A single path can match multiple facts independently"
+
+rules:
+  all-js:
+    fact: "All JavaScript files"
+    incl:
+      - "g:**/*.js"
+
+  src-files:
+    fact: "All files under src/"
+    incl:
+      - "g:src/**/*"
+
+  test-files:
+    fact: "Test files"
+    incl:
+      - "g:**/*.test.js"
+      - "g:**/*.spec.js"
+
+paths:
+  - src/app.js
+  - src/app.test.js
+  - lib/util.js
+  - lib/util.test.js
+
+expected:
+  src/app.js:
+    - all-js
+    - src-files
+  src/app.test.js:
+    - all-js
+    - src-files
+    - test-files
+  lib/util.js:
+    - all-js
+  lib/util.test.js:
+    - all-js
+    - test-files
