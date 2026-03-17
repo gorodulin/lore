@@ -1,0 +1,7 @@
+{
+  "yd7Z9qrMFl": {
+    "fact": "Catch `except Exception`, log to stderr, return empty (`{}` / `None`). Never propagate — hooks must not block Claude.",
+    "incl": ["g:**/*.py", "r:except"],
+    "skip": ["g:__init__.py", "g:cli/__init__.py"]
+  }
+}

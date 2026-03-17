@@ -1,0 +1,7 @@
+{
+  "WXMjfGroMV": {
+    "fact": "{{folder}} folder is for domain quality checks (cross-fact consistency, redundancy, scope). Primitive syntax checks belong with their domain namespace, not in {{folder}}",
+    "incl": ["g:**/*.py"],
+    "tags": ["kind:design"]
+  }
+}

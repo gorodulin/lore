@@ -1,0 +1,6 @@
+{
+  "zEfdDLTmR3": {
+    "fact": "It is okay for acceptance tests to have nested namespaces. Introduce wisely only when number of tests is large",
+    "incl": ["g:**/*.py"]
+  }
+}
