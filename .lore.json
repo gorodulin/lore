@@ -41,7 +41,7 @@
   "FTjtMYvgHH": {
     "fact": "After bumping the version here, update the version pin in lore-claude: edit LORE_VERSION, bump plugin.json and marketplace.json versions, then push. See lore-claude/RELEASING.md.",
     "incl": ["g:pyproject.toml", "r:version"],
-    "tags": ["hook:write", "kind:convention"]
+    "tags": ["kind:convention"]
   },
   "HG3F0cVxEW": {
     "fact": "Prefer triple-quoted strings or module-level constants over implicit string concatenation for multiline text",
