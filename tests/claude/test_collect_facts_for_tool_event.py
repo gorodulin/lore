@@ -676,6 +676,62 @@ def test_bash_event_matches_flag_literal_via_cmdmeta(tmp_path):
     assert "Mutating command" in ctx
 
 
+def test_bash_event_matches_p_fact_from_affected_paths(tmp_path):
+    """PreToolUse/Bash: p: matcher fires on meta.affected_paths entry."""
+    rules = {
+        "payments-guard": {
+            "fact": "Touching payments — follow MIGRATION.md",
+            "incl": ["p:src/payments/**"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    command = build_bash_command_with_cmdmeta(
+        "psql -f migrate.sql",
+        tools=("psql",),
+        affected_paths=("src/payments/db/0001_init.sql",),
+        flags=("mutates", "network", "irreversible"),
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "Run migration"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Touching payments" in ctx
+
+
+def test_bash_event_p_fact_does_not_fire_when_affected_paths_absent(tmp_path):
+    """Bash command without affected_paths in META → empty tuple → p: doesn't fire."""
+    rules = {
+        "payments-guard": {
+            "fact": "Payments",
+            "incl": ["p:src/payments/**"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    # No affected_paths field in META → defaults to empty tuple.
+    command = build_bash_command_with_cmdmeta("ls src/payments", tools=("ls",))
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "List"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+    assert result == {}
+
+
 def test_bash_event_flag_fact_does_not_fire_when_absent(tmp_path):
     rules = {
         "mutating": {

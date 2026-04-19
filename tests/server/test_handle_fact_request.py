@@ -91,6 +91,27 @@ def test_find_facts_flags_list_forwarded_as_tuple(tmp_path):
     assert "f1" in result
 
 
+def test_find_facts_by_affected_paths_only(tmp_path):
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Payments", "incl": ["p:src/payments/**"]},
+    })
+    result = handle_fact_request(
+        store, "find_facts", {"affected_paths": ["src/payments/charge.py"]}
+    )
+    assert "f1" in result
+
+
+def test_find_facts_affected_paths_list_forwarded_as_tuple(tmp_path):
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Payments", "incl": ["p:src/payments/**"]},
+    })
+    result = handle_fact_request(
+        store, "find_facts",
+        {"affected_paths": ["src/api/users.py", "src/payments/charge.py"]},
+    )
+    assert "f1" in result
+
+
 def test_read_fact(tmp_path):
     store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "read_fact", {"fact_id": "f1"})

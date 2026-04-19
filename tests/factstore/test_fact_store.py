@@ -135,6 +135,30 @@ def test_find_matching_facts_with_flags(tmp_path):
     assert "mutates" not in result
 
 
+def test_find_matching_facts_with_affected_paths(tmp_path):
+    """p: fact fires on meta.affected_paths entries (Bash), not on file_path."""
+    facts = {
+        "pay": {
+            "fact": "Payments",
+            "incl": ["p:src/payments/**"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(facts))
+
+    store = FactStore(str(tmp_path))
+    store.load_all_facts()
+
+    result = store.find_matching_facts("", affected_paths=("src/payments/c.py",))
+    assert "pay" in result
+
+    result = store.find_matching_facts("", affected_paths=("src/api/users.py",))
+    assert result == {}
+
+    # File event (affected_paths=None, path set) still works the classic way.
+    result = store.find_matching_facts("src/payments/charge.py")
+    assert "pay" in result
+
+
 def test_refresh_facts_detects_mtime_change(tmp_path):
     facts = {"f1": {"fact": "Original", "incl": ["p:**/*.py"]}}
     facts_file = tmp_path / ".lore.json"

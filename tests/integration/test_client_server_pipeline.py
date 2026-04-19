@@ -258,3 +258,24 @@ async def test_find_with_flags_matches_f_fact(tmp_path):
         assert "mut-rule" in result
     finally:
         await _stop_server(task)
+
+
+@pytest.mark.asyncio
+async def test_find_with_affected_paths_matches_p_fact(tmp_path):
+    """affected_paths param over the wire fires a p: glob per-item on Bash events."""
+    task, socket_path = await _start_server(tmp_path, facts={
+        "payments-rule": {
+            "fact": "Payments migration in progress",
+            "incl": ["p:src/payments/**"],
+            "tags": ["hook:bash"],
+        },
+    })
+    try:
+        result = await send_fact_request_async(
+            socket_path, "find_facts",
+            {"affected_paths": ["src/api/users.py", "src/payments/db/1.sql"]},
+            5.0, project_root=str(tmp_path),
+        )
+        assert "payments-rule" in result
+    finally:
+        await _stop_server(task)

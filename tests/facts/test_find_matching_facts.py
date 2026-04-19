@@ -147,3 +147,37 @@ class TestFindMatchingFacts:
 
         result = find_matching_facts(facts, "", flags=("mutates", "network"))
         assert sorted(result) == ["mut", "net"]
+
+    def test_affected_paths_filtering(self):
+        facts = {
+            "pay": build_fact_from_dict(
+                "pay", {"fact": "Payments", "incl": ["p:src/payments/**"]}
+            ),
+            "api": build_fact_from_dict(
+                "api", {"fact": "API", "incl": ["p:src/api/**"]}
+            ),
+        }
+
+        result = find_matching_facts(
+            facts, "", affected_paths=("src/payments/charge.py",)
+        )
+        assert result == ["pay"]
+
+        result = find_matching_facts(
+            facts, "", affected_paths=("src/api/users.py",)
+        )
+        assert result == ["api"]
+
+    def test_affected_paths_does_not_leak_to_file_path_events(self):
+        """File events (no affected_paths) fire p: against single path."""
+        facts = {
+            "pay": build_fact_from_dict(
+                "pay", {"fact": "Payments", "incl": ["p:src/payments/**"]}
+            ),
+        }
+
+        result = find_matching_facts(facts, "src/payments/charge.py")
+        assert result == ["pay"]
+
+        result = find_matching_facts(facts, "src/api/users.py")
+        assert result == []

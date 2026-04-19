@@ -179,3 +179,23 @@ def test_flags_param_matches_flag_fact(tmp_path):
 
     result = match_facts_for_path(str(tmp_path), "", flags=("network",))
     assert result == {}
+
+
+def test_affected_paths_param_matches_path_fact(tmp_path):
+    rules = {
+        "payments": {
+            "fact": "Payments touched",
+            "incl": ["p:src/payments/**"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    result = match_facts_for_path(
+        str(tmp_path), "", affected_paths=("src/payments/charge.py",)
+    )
+    assert "payments" in result
+
+    result = match_facts_for_path(
+        str(tmp_path), "", affected_paths=("src/api/users.py",)
+    )
+    assert result == {}

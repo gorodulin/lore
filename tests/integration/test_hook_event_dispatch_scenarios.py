@@ -306,6 +306,48 @@ class TestBashEventDispatch:
         ctx = response["hookSpecificOutput"]["additionalContext"]
         assert "Remember to share find results" in ctx
 
+    def test_bash_p_fact_fires_from_affected_paths(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "payments-migration": {
+                "fact": "Touching payments — see MIGRATION.md first",
+                "incl": ["p:src/payments/**"],
+                "tags": ["hook:bash"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta(
+            "psql -f src/payments/db/0001.sql",
+            tools=("psql",),
+            affected_paths=("src/payments/db/0001.sql",),
+            flags=("mutates", "network", "irreversible"),
+        )
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-p-1",
+            "tool_input": {"command": cmd, "description": "Run migration"},
+        }, tmp_path)
+
+        ctx = response["hookSpecificOutput"]["additionalContext"]
+        assert "Touching payments" in ctx
+
+    def test_bash_p_does_not_fire_when_affected_paths_missing(self, tmp_path):
+        """Bash command without affected_paths in META → p: stays silent."""
+        _write(tmp_path / ".lore.json", json.dumps({
+            "payments-migration": {
+                "fact": "Payments",
+                "incl": ["p:src/payments/**"],
+                "tags": ["hook:bash"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta("ls src/payments", tools=("ls",))
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-p-2",
+            "tool_input": {"command": cmd, "description": "List"},
+        }, tmp_path)
+        assert "additionalContext" not in response.get("hookSpecificOutput", {})
+
     def test_bash_t_fact_does_not_fire_when_tool_absent(self, tmp_path):
         """t: matcher on 'git push' must not fire when tools entry is 'ls'."""
         _write(tmp_path / ".lore.json", json.dumps({

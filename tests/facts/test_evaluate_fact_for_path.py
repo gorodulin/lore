@@ -417,3 +417,81 @@ class TestEvaluateFactForPath:
         assert evaluate_fact_for_path(
             fact, "", tools=("find",), flags=("agent_initiated",)
         ) is False
+
+    # --- p: on Bash events — affected_paths as multi-item path source ---
+
+    def test_path_matches_single_affected_path(self):
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(
+            fact, "", affected_paths=("src/payments/charge.py",)
+        ) is True
+
+    def test_path_matches_among_multiple_affected_paths(self):
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(
+            fact, "", affected_paths=("src/api/users.py", "src/payments/charge.py")
+        ) is True
+
+    def test_path_no_match_on_unrelated_affected_paths(self):
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(
+            fact, "", affected_paths=("src/api/users.py",)
+        ) is False
+
+    def test_path_affected_paths_none_with_empty_path_falls_back_to_single(self):
+        """Non-Bash event has affected_paths=None and empty path → False."""
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(fact, "") is False
+
+    def test_path_affected_paths_empty_tuple_means_no_match(self):
+        """Bash event with META that omits affected_paths → empty tuple → False."""
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(fact, "", affected_paths=()) is False
+
+    def test_path_file_event_still_matches_single_path(self):
+        """File events (affected_paths=None, path set) keep current behavior."""
+        fact = _build({"fact": "Payments", "incl": ["p:src/payments/**"]})
+        assert evaluate_fact_for_path(fact, "src/payments/charge.py") is True
+        assert evaluate_fact_for_path(fact, "src/api/users.py") is False
+
+    def test_path_plus_tool_combined(self):
+        fact = _build({
+            "fact": "psql against prod payments",
+            "incl": ["p:src/payments/**", "t:psql"],
+        })
+        assert evaluate_fact_for_path(
+            fact, "",
+            tools=("psql",),
+            affected_paths=("src/payments/migrate.sql",),
+        ) is True
+        # Tool matches but affected path doesn't.
+        assert evaluate_fact_for_path(
+            fact, "",
+            tools=("psql",),
+            affected_paths=("src/api/users.py",),
+        ) is False
+
+    def test_path_plus_content_never_fires_on_bash(self):
+        """Two-worlds invariant: p:+c: can't fire on Bash (content=None)."""
+        fact = _build({"fact": "Dead", "incl": ["p:src/**", "c:import"]})
+        assert evaluate_fact_for_path(
+            fact, "",
+            affected_paths=("src/app.py",),
+        ) is False
+
+    def test_skip_p_on_affected_paths(self):
+        fact = _build({
+            "fact": "DB ops except migrations",
+            "incl": ["t:psql"],
+            "skip": ["p:db/migrations/**"],
+        })
+        assert evaluate_fact_for_path(
+            fact, "",
+            tools=("psql",),
+            affected_paths=("db/migrations/001.sql",),
+        ) is False
+        assert evaluate_fact_for_path(
+            fact, "",
+            tools=("psql",),
+            affected_paths=("db/schema.sql",),
+        ) is True

@@ -88,7 +88,7 @@ class FactStore:
             if not os.path.exists(abs_path):
                 self._remove_facts_file(abs_path)
 
-    def find_matching_facts(self, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None, flags: tuple[str, ...] | None = None, tags: list[str] | None = None) -> dict[str, dict]:
+    def find_matching_facts(self, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None, flags: tuple[str, ...] | None = None, affected_paths: tuple[str, ...] | None = None, tags: list[str] | None = None) -> dict[str, dict]:
         """Find facts matching a tool event, optionally filtered by tags.
 
         For events without a file path (e.g. Bash), pass an empty string
@@ -104,7 +104,7 @@ class FactStore:
         else:
             rel_path = ""
 
-        matching_ids = find_matching_facts(self._facts, rel_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags)
+        matching_ids = find_matching_facts(self._facts, rel_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags, affected_paths=affected_paths)
         if not matching_ids:
             return {}
 
