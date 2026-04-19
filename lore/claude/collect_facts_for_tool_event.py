@@ -11,14 +11,15 @@ from lore.client.try_send_fact_request import try_send_fact_request
 
 
 def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_path: str, hook_tag: str | None = None, display_rate: int = 1) -> dict:
-    """Extract file_path from a tool event and return matching facts.
+    """Extract event fields and return matching facts.
 
-    Reads ``tool_input.file_path`` from event_data, runs the matching
-    pipeline, filters by hook tag, renders templates, applies display
-    rate filtering, and formats the results as
-    ``{"additionalContext": "..."}``.
+    For file tools, reads ``tool_input.file_path`` and resolves content.
+    For command/query tools (Bash, Agent, WebFetch, WebSearch), reads
+    ``tool_input.description``. Runs the matching pipeline, filters by
+    hook tag, renders templates, applies display rate filtering, and
+    formats the results as ``{"additionalContext": "..."}``.
 
-    Returns ``{}`` when there is no file_path or no facts match.
+    Returns ``{}`` when no event fields are available or no facts match.
 
     Args:
         event_data: Raw hook event dict from stdin
@@ -30,11 +31,13 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
     try:
         tool_input = event_data.get("tool_input", {})
         file_path = tool_input.get("file_path", "")
-        if not file_path:
+        description = tool_input.get("description") or tool_input.get("query") or None
+
+        if not file_path and not description:
             return {}
 
-        content = _resolve_content(event_data, file_path, project_root)
-        facts = _find_facts_via_server(project_root, file_path, content, hook_tag)
+        content = _resolve_content(event_data, file_path, project_root) if file_path else None
+        facts = _find_facts_via_server(project_root, file_path, content, description, hook_tag)
         if not facts:
             return {}
 
@@ -71,18 +74,22 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         return {}
 
 
-def _find_facts_via_server(project_root: str, file_path: str, content: str | None, hook_tag: str | None) -> dict[str, dict]:
+def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, hook_tag: str | None) -> dict[str, dict]:
     """Try the lore server first, fall back to in-process matching."""
-    params = {"file_path": file_path}
+    params = {}
+    if file_path:
+        params["file_path"] = file_path
     if content is not None:
         params["content"] = content
+    if description is not None:
+        params["description"] = description
     if hook_tag is not None:
         params["tags"] = [hook_tag]
     result = try_send_fact_request(project_root, "find_facts", params)
     if result is not None:
         return result
     # Fallback: in-process
-    facts = match_facts_for_path(project_root, file_path, content=content)
+    facts = match_facts_for_path(project_root, file_path, content=content, description=description)
     return filter_facts_by_hook_tag(facts, hook_tag)
 
 

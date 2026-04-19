@@ -21,7 +21,7 @@ def transform_matchers(matchers: list[str], transforms: dict) -> list[str]:
     Examples:
         >>> transform_matchers(
         ...     ["p:src/**/*.py", "c:import os"],
-        ...     {"glob": lambda v: f"app/{v}"},
+        ...     {"path": lambda v: f"app/{v}"},
         ... )
         ['p:app/src/**/*.py', 'c:import os']
     """

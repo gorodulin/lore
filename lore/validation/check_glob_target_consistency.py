@@ -64,7 +64,7 @@ def _get_glob_target(matcher: str) -> str | None:
     except ValueError:
         return None
 
-    if matcher_type != "glob":
+    if matcher_type != "path":
         return None
 
     try:

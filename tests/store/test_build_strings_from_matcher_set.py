@@ -44,3 +44,21 @@ class TestBuildStringsFromMatcherSet:
         original = ["p:src/**/*.py", "p:lib/**", "c:import os", "c:from .* import"]
         ms = build_matcher_set_from_strings(original)
         assert build_strings_from_matcher_set(ms) == original
+
+    def test_description_only(self):
+        ms = build_matcher_set_from_strings(["d:(?i)deploy"])
+        result = build_strings_from_matcher_set(ms)
+        assert result == ["d:(?i)deploy"]
+
+    def test_canonical_order_path_content_description(self):
+        """Serialization order: paths, then content, then description."""
+        ms = build_matcher_set_from_strings(
+            ["d:(?i)deploy", "c:import os", "p:**/*.py"]
+        )
+        result = build_strings_from_matcher_set(ms)
+        assert result == ["p:**/*.py", "c:import os", "d:(?i)deploy"]
+
+    def test_roundtrip_all_types(self):
+        original = ["p:**/*.py", "c:import os", "d:(?i)deploy"]
+        ms = build_matcher_set_from_strings(original)
+        assert build_strings_from_matcher_set(ms) == original

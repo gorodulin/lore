@@ -348,6 +348,76 @@ def test_action_block_on_posttooluse_read_no_blocking(tmp_path):
     assert "Blocked fact" in output["additionalContext"]
 
 
+def test_bash_event_matches_description_regex(tmp_path):
+    """PreToolUse/Bash: matches fact with d: matcher against tool_input.description."""
+    rules = {
+        "kubectl-prod": {
+            "fact": "Use --dry-run first on kubectl",
+            "incl": ["d:(?i)kubectl"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {
+            "command": "kubectl apply -f deploy.yaml",
+            "description": "Run kubectl apply on prod cluster",
+        },
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Use --dry-run first on kubectl" in ctx
+
+
+def test_bash_event_without_description_returns_empty(tmp_path):
+    """PreToolUse/Bash without description or file_path returns empty."""
+    rules = {"x": {"fact": "X", "incl": ["d:(?i)deploy"]}}
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": "ls -la"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+    assert result == {}
+
+
+def test_websearch_event_matches_query_as_description(tmp_path):
+    """PreToolUse/WebSearch: tool_input.query feeds the d: matcher."""
+    rules = {
+        "internal-docs": {
+            "fact": "Check wiki.internal before web search",
+            "incl": ["d:(?i)deploy|infra"],
+            "tags": ["hook:websearch"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "WebSearch",
+        "tool_input": {"query": "how to deploy to k8s"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:websearch"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Check wiki.internal before web search" in ctx
+
+
 def test_action_block_mixed_with_non_blocking_on_pretooluse(tmp_path):
     """Mix of blocking + non-blocking facts on PreToolUse: blocks."""
     rules = {

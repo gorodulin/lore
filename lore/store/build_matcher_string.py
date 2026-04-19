@@ -9,7 +9,7 @@ def build_matcher_string(matcher_type: str, value: str) -> str:
     Inverse of parse_matcher_string.
 
     Args:
-        matcher_type: One of "glob", "regex", "string"
+        matcher_type: One of "path", "content", "description", "string"
         value: Raw pattern value (e.g., "**/*.py")
 
     Returns:
@@ -19,10 +19,12 @@ def build_matcher_string(matcher_type: str, value: str) -> str:
         ValueError: If matcher_type is unknown
 
     Examples:
-        >>> build_matcher_string("glob", "**/*.py")
+        >>> build_matcher_string("path", "**/*.py")
         'p:**/*.py'
-        >>> build_matcher_string("regex", "import os")
+        >>> build_matcher_string("content", "import os")
         'c:import os'
+        >>> build_matcher_string("description", "(?i)deploy")
+        'd:(?i)deploy'
     """
     prefix = _TYPE_TO_PREFIX.get(matcher_type)
     if prefix is None:

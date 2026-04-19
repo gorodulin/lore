@@ -4,8 +4,8 @@ import traceback
 from lore.facts.match_facts_for_path import match_facts_for_path as match_facts_impl
 
 
-def match_facts_for_path(project_root: str, file_path: str, content: str | None = None) -> dict[str, dict]:
-    """Run the full matching pipeline and return facts matching a file path.
+def match_facts_for_path(project_root: str, file_path: str, content: str | None = None, description: str | None = None) -> dict[str, dict]:
+    """Run the full matching pipeline and return facts matching a tool event.
 
     Thin error-swallowing wrapper around lore.facts.match_facts_for_path
     for use in Claude hook handlers where errors must never propagate.
@@ -15,11 +15,13 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
 
     Args:
         project_root: Absolute path to the project root directory
-        file_path: Path to match (absolute or relative to project_root)
+        file_path: Path to match (absolute or relative to project_root).
+            Pass empty string for events without a path.
         content: Optional file content for regex matchers
+        description: Optional description text for description regexes
     """
     try:
-        return match_facts_impl(project_root, file_path, content=content)
+        return match_facts_impl(project_root, file_path, content=content, description=description)
     except Exception:
         print(traceback.format_exc(), file=sys.stderr)
         return {}

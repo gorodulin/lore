@@ -81,7 +81,7 @@ def create_fact(root_dir: str, fact_text: str, incl: list[str], skip: list[str] 
     target_dir = compute_common_dir_from_matchers(incl)
 
     # 6. Relativize patterns to target directory
-    transforms = {"glob": lambda v: relativize_glob_to_root(v, target_dir)}
+    transforms = {"path": lambda v: relativize_glob_to_root(v, target_dir)}
     local_incl = transform_matchers(incl, transforms)
     local_skip = transform_matchers(skip, transforms) if skip else []
 

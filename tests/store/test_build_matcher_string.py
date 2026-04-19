@@ -4,11 +4,14 @@ from lore.store.build_matcher_string import build_matcher_string
 
 
 class TestBuildMatcherString:
-    def test_glob_type(self):
-        assert build_matcher_string("glob", "**/*.py") == "p:**/*.py"
+    def test_path_type(self):
+        assert build_matcher_string("path", "**/*.py") == "p:**/*.py"
 
-    def test_regex_type(self):
-        assert build_matcher_string("regex", "import os") == "c:import os"
+    def test_content_type(self):
+        assert build_matcher_string("content", "import os") == "c:import os"
+
+    def test_description_type(self):
+        assert build_matcher_string("description", "(?i)deploy") == "d:(?i)deploy"
 
     def test_string_type(self):
         assert build_matcher_string("string", "exact/path.txt") == "s:exact/path.txt"
@@ -18,12 +21,12 @@ class TestBuildMatcherString:
             build_matcher_string("unknown", "value")
 
     def test_preserves_special_characters(self):
-        assert build_matcher_string("glob", "**/[test]/*.js") == "p:**/[test]/*.js"
+        assert build_matcher_string("path", "**/[test]/*.js") == "p:**/[test]/*.js"
 
     def test_preserves_spaces(self):
-        assert build_matcher_string("glob", "path with spaces/file.txt") == "p:path with spaces/file.txt"
+        assert build_matcher_string("path", "path with spaces/file.txt") == "p:path with spaces/file.txt"
 
-    def test_roundtrip_with_parse(self):
+    def test_roundtrip_path(self):
         from lore.store.parse_matcher_string import parse_matcher_string
 
         original = "p:src/**/*.ts"
@@ -31,10 +34,18 @@ class TestBuildMatcherString:
         rebuilt = build_matcher_string(matcher_type, value)
         assert rebuilt == original
 
-    def test_roundtrip_regex(self):
+    def test_roundtrip_content(self):
         from lore.store.parse_matcher_string import parse_matcher_string
 
         original = "c:.*\\.js$"
+        matcher_type, value = parse_matcher_string(original)
+        rebuilt = build_matcher_string(matcher_type, value)
+        assert rebuilt == original
+
+    def test_roundtrip_description(self):
+        from lore.store.parse_matcher_string import parse_matcher_string
+
+        original = "d:(?i)install|remove"
         matcher_type, value = parse_matcher_string(original)
         rebuilt = build_matcher_string(matcher_type, value)
         assert rebuilt == original

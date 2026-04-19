@@ -10,6 +10,10 @@ HANDLERS = [
     ("PostToolUse", "Read", "hook:read", collect_facts_for_tool_event, 5),
     ("PreToolUse", "Edit", "hook:edit", collect_facts_for_tool_event, 1),
     ("PreToolUse", "Write", "hook:write", collect_facts_for_tool_event, 1),
+    ("PreToolUse", "Bash", "hook:bash", collect_facts_for_tool_event, 1),
+    ("PreToolUse", "Task", "hook:agent", collect_facts_for_tool_event, 1),
+    ("PreToolUse", "WebFetch", "hook:webfetch", collect_facts_for_tool_event, 1),
+    ("PreToolUse", "WebSearch", "hook:websearch", collect_facts_for_tool_event, 1),
 ]
 
 """Registry of hook handlers.

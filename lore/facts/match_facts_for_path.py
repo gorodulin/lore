@@ -6,16 +6,23 @@ from lore.facts.find_matching_facts import find_matching_facts
 from lore.paths.resolve_relative_path import resolve_relative_path
 
 
-def match_facts_for_path(project_root: str, file_path: str, content: str | None = None) -> dict[str, dict]:
-    """Run the full matching pipeline and return facts matching a file path.
+def match_facts_for_path(
+    project_root: str,
+    file_path: str,
+    content: str | None = None,
+    description: str | None = None,
+) -> dict[str, dict]:
+    """Run the full matching pipeline and return facts matching a tool event.
 
     Loads all .lore.json files under project_root, merges, validates,
-    builds typed Facts, and matches against the given file_path.
+    builds typed Facts, and matches against the given event fields.
 
     Args:
         project_root: Absolute path to the project root directory
-        file_path: Path to match (absolute or relative to project_root)
-        content: Optional file content for regex matchers
+        file_path: Path to match (absolute or relative to project_root).
+            Pass empty string for events without a path (e.g. Bash).
+        content: Optional file content for content regexes
+        description: Optional description text for description regexes
 
     Returns:
         Dict mapping fact_id to raw fact dict for every matching fact.
@@ -27,9 +34,12 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
     if not project_root:
         raise ValueError("project_root must not be empty")
 
-    normalized = resolve_relative_path(project_root, file_path)
-    if normalized is None:
-        raise ValueError(f"file_path '{file_path}' is outside project root '{project_root}'")
+    if file_path:
+        normalized = resolve_relative_path(project_root, file_path)
+        if normalized is None:
+            raise ValueError(f"file_path '{file_path}' is outside project root '{project_root}'")
+    else:
+        normalized = ""
 
     fact_files = load_facts_tree(project_root)
     if not fact_files:
@@ -44,7 +54,7 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
 
     typed_facts = {fid: build_fact_from_dict(fid, fact) for fid, fact in merged.items()}
 
-    matching_ids = find_matching_facts(typed_facts, normalized, content=content)
+    matching_ids = find_matching_facts(typed_facts, normalized, content=content, description=description)
     if not matching_ids:
         return {}
 

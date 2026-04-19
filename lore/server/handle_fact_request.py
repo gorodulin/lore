@@ -22,12 +22,13 @@ def handle_fact_request(store, method: str, params: dict) -> dict:
 
 
 def _handle_find_facts(store, params: dict) -> dict:
-    file_path = params.get("file_path")
-    if not file_path:
-        raise ValueError("find_facts requires 'file_path' param")
+    file_path = params.get("file_path", "")
     content = params.get("content")
+    description = params.get("description")
     tags = params.get("tags")
-    return store.find_matching_facts(file_path, content=content, tags=tags)
+    if not file_path and description is None:
+        raise ValueError("find_facts requires 'file_path' or 'description' param")
+    return store.find_matching_facts(file_path, content=content, description=description, tags=tags)
 
 
 def _handle_read_fact(store, params: dict) -> dict:

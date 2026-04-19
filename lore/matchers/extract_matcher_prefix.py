@@ -22,7 +22,7 @@ def extract_matcher_prefix(matcher: str) -> list[str] | None:
     except ValueError:
         return None
 
-    if matcher_type != "glob":
+    if matcher_type != "path":
         return None
 
     try:

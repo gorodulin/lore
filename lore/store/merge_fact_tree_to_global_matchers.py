@@ -42,7 +42,7 @@ def merge_fact_tree_to_global_matchers(fact_files: list[dict]) -> dict[str, dict
 
 def _prefix_fact_matchers(fact: dict, prefix_dir: str) -> dict:
     """Create a copy of fact with glob matchers prefixed."""
-    transforms = {"glob": lambda v: prepend_glob_prefix(v, prefix_dir)}
+    transforms = {"path": lambda v: prepend_glob_prefix(v, prefix_dir)}
     result = {"fact": fact.get("fact", "")}
 
     if "incl" in fact:

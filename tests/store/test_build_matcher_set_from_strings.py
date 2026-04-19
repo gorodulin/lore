@@ -42,8 +42,24 @@ class TestBuildMatcherSetFromStrings:
 
     def test_invalid_prefix_raises(self):
         with pytest.raises(ValueError):
-            build_matcher_set_from_strings(["x:bad"])
+            build_matcher_set_from_strings(["z:bad"])
 
     def test_regex_is_compiled_multiline(self):
         result = build_matcher_set_from_strings(["c:^import"])
         assert result.content_regexes[0].flags & re.MULTILINE
+
+    def test_description_only(self):
+        result = build_matcher_set_from_strings(["d:(?i)deploy"])
+        assert result.path_globs == ()
+        assert result.content_regexes == ()
+        assert len(result.description_regexes) == 1
+        assert result.description_regexes[0].pattern == "(?i)deploy"
+
+    def test_description_mixed_with_path(self):
+        result = build_matcher_set_from_strings(["p:**/*.py", "d:(?i)deploy"])
+        assert len(result.path_globs) == 1
+        assert len(result.description_regexes) == 1
+
+    def test_description_regex_compiled_multiline(self):
+        result = build_matcher_set_from_strings(["d:^deploy"])
+        assert result.description_regexes[0].flags & re.MULTILINE

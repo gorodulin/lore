@@ -24,7 +24,7 @@ def compute_common_dir_from_matchers(matchers: list[str]) -> str:
         except ValueError:
             continue
 
-        if matcher_type != "glob":
+        if matcher_type != "path":
             continue
 
         compiled = compile_glob_pattern(value)

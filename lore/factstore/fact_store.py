@@ -88,18 +88,23 @@ class FactStore:
             if not os.path.exists(abs_path):
                 self._remove_facts_file(abs_path)
 
-    def find_matching_facts(self, file_path: str, content: str | None = None, tags: list[str] | None = None) -> dict[str, dict]:
-        """Find facts matching file_path, optionally filtered by content and tags.
+    def find_matching_facts(self, file_path: str, content: str | None = None, description: str | None = None, tags: list[str] | None = None) -> dict[str, dict]:
+        """Find facts matching a tool event, optionally filtered by tags.
+
+        For events without a file path (e.g. Bash), pass an empty string
+        for file_path; the full tree will be scanned for matches.
 
         Returns raw dicts for backward compatibility with consumers.
         """
-        self.refresh_facts_for_path(file_path)
+        if file_path:
+            self.refresh_facts_for_path(file_path)
+            rel_path = resolve_relative_path(self._project_root, file_path)
+            if rel_path is None:
+                return {}
+        else:
+            rel_path = ""
 
-        rel_path = resolve_relative_path(self._project_root, file_path)
-        if rel_path is None:
-            return {}
-
-        matching_ids = find_matching_facts(self._facts, rel_path, content=content)
+        matching_ids = find_matching_facts(self._facts, rel_path, content=content, description=description)
         if not matching_ids:
             return {}
 

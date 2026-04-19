@@ -62,7 +62,7 @@ class TestValidateFactStructure:
         assert any(e["code"] == error_codes.INVALID_FACT_STRUCTURE for e in errors)
 
     def test_invalid_matcher_prefix_error(self):
-        fact = {"fact": "Test", "incl": ["x:**/*.js"]}
+        fact = {"fact": "Test", "incl": ["z:**/*.js"]}
         errors = validate_fact_structure("f1", fact)
         assert any(e["code"] == error_codes.INVALID_MATCHER_PREFIX for e in errors)
 
@@ -125,3 +125,13 @@ class TestValidateFactStructure:
         fact = {"fact": "Test", "incl": ["c:r:\\d+"]}
         errors = validate_fact_structure("f1", fact)
         assert errors == []
+
+    def test_valid_description_matcher(self):
+        fact = {"fact": "Test", "incl": ["d:(?i)deploy"]}
+        errors = validate_fact_structure("f1", fact)
+        assert errors == []
+
+    def test_invalid_description_regex_syntax_error(self):
+        fact = {"fact": "Test", "incl": ["d:[invalid"]}
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)

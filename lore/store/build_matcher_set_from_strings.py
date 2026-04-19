@@ -21,17 +21,21 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
     """
     path_globs = []
     content_regexes = []
+    description_regexes = []
 
     for matcher in matchers:
         matcher_type, value = parse_matcher_string(matcher)
         compiled = compile_matcher(matcher_type, value)
 
-        if matcher_type == "glob":
+        if matcher_type == "path":
             path_globs.append(compiled)
-        elif matcher_type == "regex":
+        elif matcher_type == "content":
             content_regexes.append(compiled)
+        elif matcher_type == "description":
+            description_regexes.append(compiled)
 
     return MatcherSet(
         path_globs=tuple(path_globs),
         content_regexes=tuple(content_regexes),
+        description_regexes=tuple(description_regexes),
     )

@@ -1,13 +1,20 @@
-# Valid matcher type prefixes
-VALID_PREFIXES = {"p": "glob", "c": "regex", "s": "string"}
+# Valid matcher type prefixes. Types are target-named (not strategy-named):
+# each target maps 1:1 to a prefix letter.
+VALID_PREFIXES = {
+    "p": "path",
+    "c": "content",
+    "d": "description",
+    "s": "string",
+}
 
 
 def parse_matcher_string(matcher: str) -> tuple[str, str]:
     """Parse a prefixed matcher string into its type and value.
 
-    Matchers use a prefix to indicate their type:
+    Matchers use a prefix to indicate their target:
     - "p:" for path globs
     - "c:" for content regexes
+    - "d:" for description regexes
     - "s:" for literal strings (future)
 
     Args:
@@ -15,16 +22,18 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
 
     Returns:
         Tuple of (matcher_type, value) where matcher_type is one of
-        "glob", "regex", "string"
+        "path", "content", "description", "string".
 
     Raises:
         ValueError: If matcher has no prefix or invalid prefix
 
     Examples:
         >>> parse_matcher_string("p:**/*.js")
-        ('glob', '**/*.js')
-        >>> parse_matcher_string("p:src/")
-        ('glob', 'src/')
+        ('path', '**/*.js')
+        >>> parse_matcher_string("c:import os")
+        ('content', 'import os')
+        >>> parse_matcher_string("d:(?i)deploy")
+        ('description', '(?i)deploy')
     """
     if not matcher or len(matcher) < 3:
         raise ValueError(f"Invalid matcher format: {matcher!r}")

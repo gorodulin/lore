@@ -133,7 +133,7 @@ def _validate_matcher(fact_id: str, field: str, index: int, matcher: str) -> lis
         return errors
 
     # Validate glob syntax
-    if matcher_type == "glob":
+    if matcher_type == "path":
         is_valid, pattern_errors = validate_glob_pattern(value)
         if not is_valid:
             for err in pattern_errors:
@@ -146,8 +146,8 @@ def _validate_matcher(fact_id: str, field: str, index: int, matcher: str) -> lis
                     matcher=matcher,
                 ))
 
-    # Validate regex syntax
-    if matcher_type == "regex":
+    # Validate regex syntax for regex-based targets
+    if matcher_type in {"content", "description"}:
         try:
             re.compile(value)
         except re.error as e:

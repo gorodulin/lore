@@ -51,7 +51,7 @@ def _analyze_glob(matcher: str) -> dict | None:
     except ValueError:
         return None
 
-    if matcher_type != "glob":
+    if matcher_type != "path":
         return None
 
     try:

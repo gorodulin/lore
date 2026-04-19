@@ -115,3 +115,43 @@ class TestEvaluateFactForPath:
         assert evaluate_fact_for_path(fact, "vendor/lib.py", content="# generated") is False
         assert evaluate_fact_for_path(fact, "vendor/lib.py", content="normal") is True
         assert evaluate_fact_for_path(fact, "src/lib.py", content="# generated") is True
+
+    # --- Description regex matcher tests (d:) ---
+
+    def test_description_only_matches(self):
+        fact = _build({"fact": "Deploys", "incl": ["d:(?i)deploy"]})
+        assert evaluate_fact_for_path(fact, "", description="Deploy to production") is True
+
+    def test_description_only_no_match(self):
+        fact = _build({"fact": "Deploys", "incl": ["d:(?i)deploy"]})
+        assert evaluate_fact_for_path(fact, "", description="Run tests") is False
+
+    def test_description_none_with_description_regex_no_match(self):
+        fact = _build({"fact": "Deploys", "incl": ["d:(?i)deploy"]})
+        assert evaluate_fact_for_path(fact, "", description=None) is False
+
+    def test_description_missing_on_file_event_means_no_match(self):
+        # Decision 10: no source -> False when matchers of that target exist
+        fact = _build({"fact": "Deploys", "incl": ["d:(?i)deploy"]})
+        assert evaluate_fact_for_path(fact, "src/app.py", content="anything") is False
+
+    def test_description_combined_with_path_both_required(self):
+        fact = _build({"fact": "Py deploys", "incl": ["p:**/*.py", "d:(?i)deploy"]})
+        assert evaluate_fact_for_path(fact, "src/app.py", description="Deploy") is True
+        assert evaluate_fact_for_path(fact, "src/app.py", description="Test") is False
+        assert evaluate_fact_for_path(fact, "src/app.js", description="Deploy") is False
+
+    def test_multiple_description_regexes_or(self):
+        fact = _build({"fact": "Install/remove", "incl": ["d:(?i)install", "d:(?i)remove"]})
+        assert evaluate_fact_for_path(fact, "", description="Install deps") is True
+        assert evaluate_fact_for_path(fact, "", description="Remove old files") is True
+        assert evaluate_fact_for_path(fact, "", description="Run tests") is False
+
+    def test_skip_description_excludes(self):
+        fact = _build({
+            "fact": "All bash",
+            "incl": ["d:.*"],
+            "skip": ["d:(?i)dry-run"],
+        })
+        assert evaluate_fact_for_path(fact, "", description="kubectl apply") is True
+        assert evaluate_fact_for_path(fact, "", description="kubectl apply --dry-run") is False
