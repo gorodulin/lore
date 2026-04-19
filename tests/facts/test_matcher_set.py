@@ -12,6 +12,7 @@ class TestMatcherSet:
         assert ms.description_regexes == ()
         assert ms.command_regexes == ()
         assert ms.tool_regexes == ()
+        assert ms.endpoint_regexes == ()
 
     def test_with_path_globs(self):
         glob = compile_glob_pattern("**/*.py")
@@ -30,6 +31,12 @@ class TestMatcherSet:
         ms = MatcherSet(tool_regexes=(pattern,))
         assert len(ms.tool_regexes) == 1
         assert ms.tool_regexes[0].pattern == "git push"
+
+    def test_with_endpoint_regexes(self):
+        pattern = re.compile("\\.prod\\.", re.MULTILINE)
+        ms = MatcherSet(endpoint_regexes=(pattern,))
+        assert len(ms.endpoint_regexes) == 1
+        assert ms.endpoint_regexes[0].pattern == "\\.prod\\."
 
     def test_frozen(self):
         ms = MatcherSet()

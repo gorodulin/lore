@@ -147,3 +147,19 @@ def test_tools_none_skips_tool_fact(tmp_path):
     result = match_facts_for_path(str(tmp_path), "src/app.py")
     assert "git-push" not in result
     assert "py-files" in result
+
+
+def test_endpoints_param_matches_endpoint_fact(tmp_path):
+    rules = {
+        "prod": {
+            "fact": "Talking to prod",
+            "incl": ["e:\\.prod\\."],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    result = match_facts_for_path(str(tmp_path), "", endpoints=("api.prod.com",))
+    assert "prod" in result
+
+    result = match_facts_for_path(str(tmp_path), "", endpoints=("api.staging.com",))
+    assert result == {}

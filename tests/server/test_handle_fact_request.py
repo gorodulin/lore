@@ -51,6 +51,26 @@ def test_find_facts_tools_list_forwarded_as_tuple(tmp_path):
     assert "f1" in result
 
 
+def test_find_facts_by_endpoints_only(tmp_path):
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Prod", "incl": ["e:\\.prod\\."]},
+    })
+    result = handle_fact_request(
+        store, "find_facts", {"endpoints": ["api.prod.com"]}
+    )
+    assert "f1" in result
+
+
+def test_find_facts_endpoints_list_forwarded_as_tuple(tmp_path):
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Prod", "incl": ["e:\\.prod\\."]},
+    })
+    result = handle_fact_request(
+        store, "find_facts", {"endpoints": ["api.staging.com", "api.prod.com"]}
+    )
+    assert "f1" in result
+
+
 def test_read_fact(tmp_path):
     store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "read_fact", {"fact_id": "f1"})

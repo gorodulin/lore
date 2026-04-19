@@ -91,6 +91,28 @@ def test_find_matching_facts_with_tools(tmp_path):
     assert "git-push" not in result
 
 
+def test_find_matching_facts_with_endpoints(tmp_path):
+    facts = {
+        "prod": {
+            "fact": "Talking to prod",
+            "incl": ["e:\\.prod\\."],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(facts))
+
+    store = FactStore(str(tmp_path))
+    store.load_all_facts()
+
+    result = store.find_matching_facts("", endpoints=("api.prod.com",))
+    assert "prod" in result
+
+    result = store.find_matching_facts("", endpoints=("api.staging.com",))
+    assert result == {}
+
+    result = store.find_matching_facts("src/app.py")
+    assert "prod" not in result
+
+
 def test_refresh_facts_detects_mtime_change(tmp_path):
     facts = {"f1": {"fact": "Original", "incl": ["p:**/*.py"]}}
     facts_file = tmp_path / ".lore.json"

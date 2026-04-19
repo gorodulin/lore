@@ -32,4 +32,7 @@ def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:
     for compiled_regex in matcher_set.tool_regexes:
         result.append(build_matcher_string("tool", compiled_regex.pattern))
 
+    for compiled_regex in matcher_set.endpoint_regexes:
+        result.append(build_matcher_string("endpoint", compiled_regex.pattern))
+
     return result

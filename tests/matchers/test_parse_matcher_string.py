@@ -30,6 +30,12 @@ class TestParseMatcher:
     def test_tool_matcher_with_regex(self):
         assert parse_matcher_string("t:kubectl|helm") == ("tool", "kubectl|helm")
 
+    def test_endpoint_matcher(self):
+        assert parse_matcher_string("e:api.prod.com") == ("endpoint", "api.prod.com")
+
+    def test_endpoint_matcher_with_regex(self):
+        assert parse_matcher_string("e:\\.prod\\.") == ("endpoint", "\\.prod\\.")
+
     def test_string_matcher(self):
         assert parse_matcher_string("s:exact/path.txt") == ("string", "exact/path.txt")
 

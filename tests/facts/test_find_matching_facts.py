@@ -120,3 +120,15 @@ class TestFindMatchingFacts:
         result = find_matching_facts(facts, "src/app.py", tools=None)
         assert "f1" not in result
         assert "f2" in result
+
+    def test_endpoints_filtering(self):
+        facts = {
+            "prod": build_fact_from_dict("prod", {"fact": "Prod", "incl": ["e:\\.prod\\."]}),
+            "staging": build_fact_from_dict("staging", {"fact": "Staging", "incl": ["e:\\.staging\\."]}),
+        }
+
+        result = find_matching_facts(facts, "", endpoints=("api.prod.com",))
+        assert result == ["prod"]
+
+        result = find_matching_facts(facts, "", endpoints=("api.staging.com",))
+        assert result == ["staging"]

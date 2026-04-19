@@ -155,3 +155,13 @@ class TestValidateFactStructure:
         fact = {"fact": "Test", "incl": ["t:[invalid"]}
         errors = validate_fact_structure("f1", fact)
         assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)
+
+    def test_valid_endpoint_matcher(self):
+        fact = {"fact": "Test", "incl": ["e:\\.prod\\."]}
+        errors = validate_fact_structure("f1", fact)
+        assert errors == []
+
+    def test_invalid_endpoint_regex_syntax_error(self):
+        fact = {"fact": "Test", "incl": ["e:[invalid"]}
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)

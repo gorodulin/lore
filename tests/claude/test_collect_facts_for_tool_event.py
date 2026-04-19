@@ -587,6 +587,88 @@ def test_bash_event_tool_fact_does_not_fire_when_tool_absent(tmp_path):
     assert result == {}
 
 
+def test_bash_event_matches_endpoint_regex_via_cmdmeta(tmp_path):
+    """PreToolUse/Bash: e: matcher fires on meta.endpoints entry."""
+    rules = {
+        "prod-guard": {
+            "fact": "Prod cluster requires dry-run first",
+            "incl": ["e:\\.prod\\."],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    command = build_bash_command_with_cmdmeta(
+        "kubectl apply -f deploy.yaml",
+        tools=("kubectl apply",),
+        endpoints=("api.prod.cluster.local",),
+        flags=("mutates", "network"),
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "Apply to prod"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Prod cluster requires dry-run first" in ctx
+
+
+def test_webfetch_event_matches_endpoint_regex_from_url(tmp_path):
+    """PreToolUse/WebFetch: tool_input.url normalizes into endpoint source."""
+    rules = {
+        "prod-api": {
+            "fact": "Internal prod API requires auth header",
+            "incl": ["e:api\\.internal\\.prod"],
+            "tags": ["hook:webfetch"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "WebFetch",
+        "tool_input": {
+            "url": "https://api.internal.prod.example/health",
+            "description": "Check health",
+        },
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:webfetch"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Internal prod API requires auth header" in ctx
+
+
+def test_webfetch_without_url_does_not_fire_endpoint_fact(tmp_path):
+    """WebFetch with no url → endpoints=None; e: fact must not fire."""
+    rules = {
+        "prod-api": {
+            "fact": "Prod API",
+            "incl": ["e:\\.prod\\."],
+            "tags": ["hook:webfetch"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "WebFetch",
+        "tool_input": {"description": "fetch something"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:webfetch"
+    )
+    assert result == {}
+
+
 def test_non_bash_event_does_not_fire_tool_fact(tmp_path):
     """Decision 10: tools=None on non-Bash events → t: fact must not fire."""
     rules = {

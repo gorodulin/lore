@@ -216,3 +216,24 @@ async def test_find_with_tools_matches_t_fact(tmp_path):
         assert "git-push-rule" in result
     finally:
         await _stop_server(task)
+
+
+@pytest.mark.asyncio
+async def test_find_with_endpoints_matches_e_fact(tmp_path):
+    """endpoints param over the wire fires an e: fact per-item."""
+    task, socket_path = await _start_server(tmp_path, facts={
+        "prod-rule": {
+            "fact": "Prod calls need incident window",
+            "incl": ["e:\\.prod\\."],
+            "tags": ["hook:bash"],
+        },
+    })
+    try:
+        result = await send_fact_request_async(
+            socket_path, "find_facts",
+            {"endpoints": ["api.staging.com", "api.prod.com"]},
+            5.0, project_root=str(tmp_path),
+        )
+        assert "prod-rule" in result
+    finally:
+        await _stop_server(task)

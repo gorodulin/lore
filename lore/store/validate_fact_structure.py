@@ -147,7 +147,7 @@ def _validate_matcher(fact_id: str, field: str, index: int, matcher: str) -> lis
                 ))
 
     # Validate regex syntax for regex-based targets
-    if matcher_type in {"content", "description", "command", "tool"}:
+    if matcher_type in {"content", "description", "command", "tool", "endpoint"}:
         try:
             re.compile(value)
         except re.error as e:

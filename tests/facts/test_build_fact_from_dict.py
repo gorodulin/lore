@@ -58,3 +58,13 @@ class TestBuildFactFromDict:
         assert len(result.incl.tool_regexes) == 2
         assert result.incl.tool_regexes[0].pattern == "git push"
         assert result.incl.tool_regexes[1].pattern == "kubectl apply"
+
+    def test_with_endpoint_matchers(self):
+        raw = {
+            "fact": "Prod endpoints",
+            "incl": ["e:\\.prod\\.", "e:api\\.internal"],
+        }
+        result = build_fact_from_dict("f7", raw)
+        assert len(result.incl.endpoint_regexes) == 2
+        assert result.incl.endpoint_regexes[0].pattern == "\\.prod\\."
+        assert result.incl.endpoint_regexes[1].pattern == "api\\.internal"

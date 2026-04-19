@@ -102,3 +102,34 @@ class TestBuildStringsFromMatcherSet:
         original = ["t:kubectl|helm"]
         ms = build_matcher_set_from_strings(original)
         assert build_strings_from_matcher_set(ms) == original
+
+    def test_endpoint_only(self):
+        ms = build_matcher_set_from_strings(["e:api.prod.com"])
+        assert build_strings_from_matcher_set(ms) == ["e:api.prod.com"]
+
+    def test_canonical_order_all_six_types(self):
+        """Serialization order: path, content, description, command, tool, endpoint."""
+        ms = build_matcher_set_from_strings(
+            [
+                "e:\\.prod\\.",
+                "t:kubectl",
+                "x:apply",
+                "d:(?i)deploy",
+                "c:import os",
+                "p:**/*.py",
+            ]
+        )
+        result = build_strings_from_matcher_set(ms)
+        assert result == [
+            "p:**/*.py",
+            "c:import os",
+            "d:(?i)deploy",
+            "x:apply",
+            "t:kubectl",
+            "e:\\.prod\\.",
+        ]
+
+    def test_roundtrip_endpoint(self):
+        original = ["e:api\\.prod\\.com"]
+        ms = build_matcher_set_from_strings(original)
+        assert build_strings_from_matcher_set(ms) == original

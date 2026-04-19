@@ -24,6 +24,7 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
     description_regexes = []
     command_regexes = []
     tool_regexes = []
+    endpoint_regexes = []
 
     for matcher in matchers:
         matcher_type, value = parse_matcher_string(matcher)
@@ -39,6 +40,8 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
             command_regexes.append(compiled)
         elif matcher_type == "tool":
             tool_regexes.append(compiled)
+        elif matcher_type == "endpoint":
+            endpoint_regexes.append(compiled)
 
     return MatcherSet(
         path_globs=tuple(path_globs),
@@ -46,4 +49,5 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
         description_regexes=tuple(description_regexes),
         command_regexes=tuple(command_regexes),
         tool_regexes=tuple(tool_regexes),
+        endpoint_regexes=tuple(endpoint_regexes),
     )

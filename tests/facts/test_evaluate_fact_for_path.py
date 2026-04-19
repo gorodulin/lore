@@ -284,3 +284,71 @@ class TestEvaluateFactForPath:
         assert evaluate_fact_for_path(fact, "", command="echo hi", tools=("echo",)) is False
         # git commit isn't excluded.
         assert evaluate_fact_for_path(fact, "", command="git commit", tools=("git commit",)) is True
+
+    # --- Endpoint regex matcher tests (e:) — per-item against endpoints ---
+
+    def test_endpoint_only_single_entry_match(self):
+        fact = _build({"fact": "Prod endpoint", "incl": ["e:\\.prod\\."]})
+        assert evaluate_fact_for_path(fact, "", endpoints=("api.prod.com",)) is True
+
+    def test_endpoint_matches_among_multiple_entries(self):
+        fact = _build({"fact": "Prod", "incl": ["e:\\.prod\\."]})
+        assert evaluate_fact_for_path(
+            fact, "", endpoints=("api.staging.com", "api.prod.com")
+        ) is True
+
+    def test_endpoint_no_match_on_non_prod(self):
+        fact = _build({"fact": "Prod", "incl": ["e:\\.prod\\."]})
+        assert evaluate_fact_for_path(fact, "", endpoints=("api.staging.com",)) is False
+
+    def test_endpoint_none_means_no_source(self):
+        # Decision 10.
+        fact = _build({"fact": "Prod", "incl": ["e:\\.prod\\."]})
+        assert evaluate_fact_for_path(fact, "", endpoints=None) is False
+
+    def test_endpoint_empty_tuple_means_nothing_to_match(self):
+        fact = _build({"fact": "Any", "incl": ["e:.*"]})
+        assert evaluate_fact_for_path(fact, "", endpoints=()) is False
+
+    def test_endpoint_missing_on_file_event(self):
+        fact = _build({"fact": "Prod", "incl": ["e:\\.prod\\."]})
+        assert evaluate_fact_for_path(fact, "src/app.py", content="anything") is False
+
+    def test_endpoint_combined_with_tool(self):
+        fact = _build({
+            "fact": "Kubectl against prod",
+            "incl": ["t:kubectl", "e:\\.prod\\."],
+        })
+        assert evaluate_fact_for_path(
+            fact, "", tools=("kubectl",), endpoints=("api.prod.com",)
+        ) is True
+        # Tool matches but endpoint doesn't.
+        assert evaluate_fact_for_path(
+            fact, "", tools=("kubectl",), endpoints=("api.staging.com",)
+        ) is False
+        # Endpoint matches but tool doesn't.
+        assert evaluate_fact_for_path(
+            fact, "", tools=("helm",), endpoints=("api.prod.com",)
+        ) is False
+
+    def test_multiple_endpoint_regexes_or(self):
+        fact = _build({
+            "fact": "Prod or staging",
+            "incl": ["e:\\.prod\\.", "e:\\.staging\\."],
+        })
+        assert evaluate_fact_for_path(fact, "", endpoints=("api.prod.com",)) is True
+        assert evaluate_fact_for_path(fact, "", endpoints=("api.staging.com",)) is True
+        assert evaluate_fact_for_path(fact, "", endpoints=("api.dev.com",)) is False
+
+    def test_skip_endpoint_excludes_local(self):
+        fact = _build({
+            "fact": "External calls",
+            "incl": ["t:curl"],
+            "skip": ["e:localhost|127\\.0\\.0\\.1"],
+        })
+        assert evaluate_fact_for_path(
+            fact, "", tools=("curl",), endpoints=("api.prod.com",)
+        ) is True
+        assert evaluate_fact_for_path(
+            fact, "", tools=("curl",), endpoints=("localhost:8080",)
+        ) is False

@@ -225,6 +225,30 @@ class TestBashEventDispatch:
         assert out["permissionDecision"] == "deny"
         assert "Force push to shared branches" in out["permissionDecisionReason"]
 
+    def test_bash_e_fact_fires_on_endpoints_entry(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "prod-guard": {
+                "fact": "Prod cluster ops need --dry-run first",
+                "incl": ["e:\\.prod\\."],
+                "tags": ["hook:bash"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta(
+            "kubectl apply -f deploy.yaml",
+            tools=("kubectl apply",),
+            endpoints=("api.prod.cluster.local",),
+            flags=("mutates", "network"),
+        )
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-e-1",
+            "tool_input": {"command": cmd, "description": "Deploy"},
+        }, tmp_path)
+
+        ctx = response["hookSpecificOutput"]["additionalContext"]
+        assert "Prod cluster ops need --dry-run first" in ctx
+
     def test_bash_t_fact_does_not_fire_when_tool_absent(self, tmp_path):
         """t: matcher on 'git push' must not fire when tools entry is 'ls'."""
         _write(tmp_path / ".lore.json", json.dumps({
@@ -307,6 +331,27 @@ class TestCommandlikeToolEventDispatch:
         assert "hookSpecificOutput" not in response or (
             "additionalContext" not in response["hookSpecificOutput"]
         )
+
+    def test_webfetch_endpoint_matcher_fires_on_url(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "internal-api": {
+                "fact": "Internal API requires X-Auth header",
+                "incl": ["e:api\\.internal\\."],
+                "tags": ["hook:webfetch"],
+            },
+        }))
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "WebFetch",
+            "session_id": "web-e-1",
+            "tool_input": {
+                "url": "https://api.internal.company.com/users",
+                "description": "Fetch users",
+            },
+        }, tmp_path)
+
+        ctx = response["hookSpecificOutput"]["additionalContext"]
+        assert "Internal API requires X-Auth header" in ctx
 
     def test_webfetch_description_and_endpoint_scoped_correctly(self, tmp_path):
         _write(tmp_path / ".lore.json", json.dumps({

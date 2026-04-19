@@ -100,3 +100,25 @@ class TestBuildMatcherSetFromStrings:
         assert len(result.path_globs) == 1
         assert len(result.tool_regexes) == 1
         assert len(result.description_regexes) == 1
+
+    def test_endpoint_only(self):
+        result = build_matcher_set_from_strings(["e:api.prod.com"])
+        assert result.path_globs == ()
+        assert result.tool_regexes == ()
+        assert len(result.endpoint_regexes) == 1
+        assert result.endpoint_regexes[0].pattern == "api.prod.com"
+
+    def test_endpoint_multiple(self):
+        result = build_matcher_set_from_strings(["e:prod", "e:staging"])
+        assert len(result.endpoint_regexes) == 2
+        assert result.endpoint_regexes[0].pattern == "prod"
+        assert result.endpoint_regexes[1].pattern == "staging"
+
+    def test_endpoint_regex_compiled_multiline(self):
+        result = build_matcher_set_from_strings(["e:^api"])
+        assert result.endpoint_regexes[0].flags & re.MULTILINE
+
+    def test_endpoint_mixed_with_tool(self):
+        result = build_matcher_set_from_strings(["t:kubectl", "e:\\.prod\\."])
+        assert len(result.tool_regexes) == 1
+        assert len(result.endpoint_regexes) == 1

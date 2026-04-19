@@ -41,6 +41,12 @@ class TestCompileMatcher:
         assert result.search("helm") is not None
         assert result.search("docker") is None
 
+    def test_compile_endpoint(self):
+        result = compile_matcher("endpoint", "\\.prod\\.")
+        assert isinstance(result, re.Pattern)
+        assert result.search("api.prod.com") is not None
+        assert result.search("api.staging.com") is None
+
     def test_unknown_type_raises(self):
         with pytest.raises(ValueError, match="Unknown matcher type"):
             compile_matcher("unknown", "value")
