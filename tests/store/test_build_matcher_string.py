@@ -13,6 +13,9 @@ class TestBuildMatcherString:
     def test_description_type(self):
         assert build_matcher_string("description", "(?i)deploy") == "d:(?i)deploy"
 
+    def test_command_type(self):
+        assert build_matcher_string("command", "rm -rf") == "x:rm -rf"
+
     def test_string_type(self):
         assert build_matcher_string("string", "exact/path.txt") == "s:exact/path.txt"
 
@@ -46,6 +49,14 @@ class TestBuildMatcherString:
         from lore.store.parse_matcher_string import parse_matcher_string
 
         original = "d:(?i)install|remove"
+        matcher_type, value = parse_matcher_string(original)
+        rebuilt = build_matcher_string(matcher_type, value)
+        assert rebuilt == original
+
+    def test_roundtrip_command(self):
+        from lore.store.parse_matcher_string import parse_matcher_string
+
+        original = "x:\\|\\s*sh"
         matcher_type, value = parse_matcher_string(original)
         rebuilt = build_matcher_string(matcher_type, value)
         assert rebuilt == original

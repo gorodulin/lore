@@ -10,6 +10,7 @@ def evaluate_fact_for_path(
     path: str,
     content: str | None = None,
     description: str | None = None,
+    command: str | None = None,
 ) -> bool:
     """Test if a tool event matches a typed Fact.
 
@@ -29,14 +30,15 @@ def evaluate_fact_for_path(
             Pass empty string for events without a path.
         content: Optional content to test content regexes against.
         description: Optional description text to test description regexes against.
+        command: Optional raw command text to test command regexes against.
 
     Returns:
         True if the event matches the fact, False otherwise.
     """
-    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description):
+    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description, command):
         return False
 
-    return _matches_matcher_set(fact.incl, path, content, description)
+    return _matches_matcher_set(fact.incl, path, content, description, command)
 
 
 def _has_matchers(matcher_set: MatcherSet) -> bool:
@@ -45,6 +47,7 @@ def _has_matchers(matcher_set: MatcherSet) -> bool:
         matcher_set.path_globs
         or matcher_set.content_regexes
         or matcher_set.description_regexes
+        or matcher_set.command_regexes
     )
 
 
@@ -53,12 +56,14 @@ def _matches_matcher_set(
     path: str,
     content: str | None,
     description: str | None,
+    command: str | None,
 ) -> bool:
     """Check if an event matches a MatcherSet."""
     return (
         _check_path_globs(matcher_set.path_globs, path)
         and _check_text_regexes(matcher_set.content_regexes, content)
         and _check_text_regexes(matcher_set.description_regexes, description)
+        and _check_text_regexes(matcher_set.command_regexes, command)
     )
 
 

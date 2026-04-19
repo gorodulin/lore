@@ -4,6 +4,7 @@ VALID_PREFIXES = {
     "p": "path",
     "c": "content",
     "d": "description",
+    "x": "command",
     "s": "string",
 }
 
@@ -15,6 +16,7 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
     - "p:" for path globs
     - "c:" for content regexes
     - "d:" for description regexes
+    - "x:" for raw command regexes
     - "s:" for literal strings (future)
 
     Args:
@@ -22,7 +24,7 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
 
     Returns:
         Tuple of (matcher_type, value) where matcher_type is one of
-        "path", "content", "description", "string".
+        "path", "content", "description", "command", "string".
 
     Raises:
         ValueError: If matcher has no prefix or invalid prefix

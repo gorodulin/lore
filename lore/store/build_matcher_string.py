@@ -9,7 +9,7 @@ def build_matcher_string(matcher_type: str, value: str) -> str:
     Inverse of parse_matcher_string.
 
     Args:
-        matcher_type: One of "path", "content", "description", "string"
+        matcher_type: One of "path", "content", "description", "command", "string"
         value: Raw pattern value (e.g., "**/*.py")
 
     Returns:

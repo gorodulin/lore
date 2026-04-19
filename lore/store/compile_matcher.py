@@ -7,7 +7,7 @@ def compile_matcher(matcher_type: str, value: str):
     """Compile a single matcher value into its executable form.
 
     Args:
-        matcher_type: One of "path", "content", "description"
+        matcher_type: One of "path", "content", "description", "command"
         value: Raw pattern value (e.g., "**/*.py" or "import os")
 
     Returns:
@@ -18,7 +18,7 @@ def compile_matcher(matcher_type: str, value: str):
     """
     if matcher_type == "path":
         return compile_glob_pattern(value)
-    elif matcher_type in {"content", "description"}:
+    elif matcher_type in {"content", "description", "command"}:
         return re.compile(value, re.MULTILINE)
     else:
         raise ValueError(f"Unknown matcher type: {matcher_type}")

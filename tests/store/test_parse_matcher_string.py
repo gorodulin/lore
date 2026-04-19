@@ -21,6 +21,9 @@ class TestParseMatcher:
     def test_description_matcher(self):
         assert parse_matcher_string("d:(?i)deploy") == ("description", "(?i)deploy")
 
+    def test_command_matcher(self):
+        assert parse_matcher_string("x:rm -rf") == ("command", "rm -rf")
+
     def test_string_matcher(self):
         assert parse_matcher_string("s:exact/path.txt") == ("string", "exact/path.txt")
 

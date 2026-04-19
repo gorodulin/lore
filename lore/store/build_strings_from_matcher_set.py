@@ -5,7 +5,7 @@ from lore.store.build_matcher_string import build_matcher_string
 def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:
     """Convert a typed MatcherSet back into a list of prefixed matcher strings.
 
-    Iterates fields in a fixed order (paths, then content, then description)
+    Iterates fields in a fixed order (paths, content, description, command)
     and recovers the source string from each compiled form. The output order
     is deterministic for canonical serialization.
 
@@ -25,5 +25,8 @@ def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:
 
     for compiled_regex in matcher_set.description_regexes:
         result.append(build_matcher_string("description", compiled_regex.pattern))
+
+    for compiled_regex in matcher_set.command_regexes:
+        result.append(build_matcher_string("command", compiled_regex.pattern))
 
     return result

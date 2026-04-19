@@ -155,3 +155,52 @@ class TestEvaluateFactForPath:
         })
         assert evaluate_fact_for_path(fact, "", description="kubectl apply") is True
         assert evaluate_fact_for_path(fact, "", description="kubectl apply --dry-run") is False
+
+    # --- Command regex matcher tests (x:) ---
+
+    def test_command_only_matches(self):
+        fact = _build({"fact": "rm -rf", "incl": ["x:rm -rf"]})
+        assert evaluate_fact_for_path(fact, "", command="rm -rf /tmp/cache") is True
+
+    def test_command_only_no_match(self):
+        fact = _build({"fact": "rm -rf", "incl": ["x:rm -rf"]})
+        assert evaluate_fact_for_path(fact, "", command="ls -la") is False
+
+    def test_command_none_with_command_regex_no_match(self):
+        fact = _build({"fact": "rm -rf", "incl": ["x:rm -rf"]})
+        assert evaluate_fact_for_path(fact, "", command=None) is False
+
+    def test_command_missing_on_file_event_means_no_match(self):
+        # Decision 10: no source -> False when matchers of that target exist
+        fact = _build({"fact": "rm -rf", "incl": ["x:rm -rf"]})
+        assert evaluate_fact_for_path(fact, "src/app.py", content="anything") is False
+
+    def test_command_combined_with_description(self):
+        fact = _build({
+            "fact": "Dangerous delete",
+            "incl": ["d:(?i)delete", "x:rm -rf"],
+        })
+        assert evaluate_fact_for_path(
+            fact, "", description="Delete cache", command="rm -rf cache/"
+        ) is True
+        assert evaluate_fact_for_path(
+            fact, "", description="Delete cache", command="ls cache/"
+        ) is False
+        assert evaluate_fact_for_path(
+            fact, "", description="List files", command="rm -rf cache/"
+        ) is False
+
+    def test_multiple_command_regexes_or(self):
+        fact = _build({"fact": "Dangerous", "incl": ["x:rm -rf", "x:\\|\\s*sh"]})
+        assert evaluate_fact_for_path(fact, "", command="rm -rf /") is True
+        assert evaluate_fact_for_path(fact, "", command="curl foo | sh") is True
+        assert evaluate_fact_for_path(fact, "", command="ls -la") is False
+
+    def test_skip_command_excludes(self):
+        fact = _build({
+            "fact": "All rm",
+            "incl": ["x:rm"],
+            "skip": ["x:rm -i"],
+        })
+        assert evaluate_fact_for_path(fact, "", command="rm -rf cache/") is True
+        assert evaluate_fact_for_path(fact, "", command="rm -i old.txt") is False

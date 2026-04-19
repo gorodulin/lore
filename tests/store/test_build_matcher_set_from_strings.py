@@ -63,3 +63,15 @@ class TestBuildMatcherSetFromStrings:
     def test_description_regex_compiled_multiline(self):
         result = build_matcher_set_from_strings(["d:^deploy"])
         assert result.description_regexes[0].flags & re.MULTILINE
+
+    def test_command_only(self):
+        result = build_matcher_set_from_strings(["x:rm -rf"])
+        assert result.path_globs == ()
+        assert result.content_regexes == ()
+        assert result.description_regexes == ()
+        assert len(result.command_regexes) == 1
+        assert result.command_regexes[0].pattern == "rm -rf"
+
+    def test_command_regex_compiled_multiline(self):
+        result = build_matcher_set_from_strings(["x:^rm"])
+        assert result.command_regexes[0].flags & re.MULTILINE

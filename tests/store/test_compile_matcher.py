@@ -25,6 +25,11 @@ class TestCompileMatcher:
         assert isinstance(result, re.Pattern)
         assert result.search("Deploy the app") is not None
 
+    def test_compile_command(self):
+        result = compile_matcher("command", "rm -rf")
+        assert isinstance(result, re.Pattern)
+        assert result.search("rm -rf /tmp/cache") is not None
+
     def test_unknown_type_raises(self):
         with pytest.raises(ValueError, match="Unknown matcher type"):
             compile_matcher("unknown", "value")

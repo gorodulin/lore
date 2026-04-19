@@ -135,3 +135,13 @@ class TestValidateFactStructure:
         fact = {"fact": "Test", "incl": ["d:[invalid"]}
         errors = validate_fact_structure("f1", fact)
         assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)
+
+    def test_valid_command_matcher(self):
+        fact = {"fact": "Test", "incl": ["x:rm -rf"]}
+        errors = validate_fact_structure("f1", fact)
+        assert errors == []
+
+    def test_invalid_command_regex_syntax_error(self):
+        fact = {"fact": "Test", "incl": ["x:[invalid"]}
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)

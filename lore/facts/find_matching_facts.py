@@ -7,6 +7,7 @@ def find_matching_facts(
     path: str,
     content: str | None = None,
     description: str | None = None,
+    command: str | None = None,
 ) -> list[str]:
     """Find all facts that match a given tool event.
 
@@ -19,6 +20,7 @@ def find_matching_facts(
             Pass empty string for events without a path.
         content: Optional content to test regex matchers against.
         description: Optional description text to test description regexes.
+        command: Optional raw command text to test command regexes.
 
     Returns:
         List of fact IDs that match the event.
@@ -26,7 +28,7 @@ def find_matching_facts(
     matching_ids = []
 
     for fact_id, fact in facts.items():
-        if evaluate_fact_for_path(fact, path, content=content, description=description):
+        if evaluate_fact_for_path(fact, path, content=content, description=description, command=command):
             matching_ids.append(fact_id)
 
     return matching_ids

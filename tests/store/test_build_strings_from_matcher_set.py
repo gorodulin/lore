@@ -62,3 +62,20 @@ class TestBuildStringsFromMatcherSet:
         original = ["p:**/*.py", "c:import os", "d:(?i)deploy"]
         ms = build_matcher_set_from_strings(original)
         assert build_strings_from_matcher_set(ms) == original
+
+    def test_command_only(self):
+        ms = build_matcher_set_from_strings(["x:rm -rf"])
+        result = build_strings_from_matcher_set(ms)
+        assert result == ["x:rm -rf"]
+
+    def test_canonical_order_all_four_types(self):
+        ms = build_matcher_set_from_strings(
+            ["x:rm -rf", "d:(?i)deploy", "c:import os", "p:**/*.py"]
+        )
+        result = build_strings_from_matcher_set(ms)
+        assert result == [
+            "p:**/*.py",
+            "c:import os",
+            "d:(?i)deploy",
+            "x:rm -rf",
+        ]

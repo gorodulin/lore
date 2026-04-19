@@ -11,6 +11,7 @@ def match_facts_for_path(
     file_path: str,
     content: str | None = None,
     description: str | None = None,
+    command: str | None = None,
 ) -> dict[str, dict]:
     """Run the full matching pipeline and return facts matching a tool event.
 
@@ -23,6 +24,7 @@ def match_facts_for_path(
             Pass empty string for events without a path (e.g. Bash).
         content: Optional file content for content regexes
         description: Optional description text for description regexes
+        command: Optional raw command text for command regexes
 
     Returns:
         Dict mapping fact_id to raw fact dict for every matching fact.
@@ -54,7 +56,7 @@ def match_facts_for_path(
 
     typed_facts = {fid: build_fact_from_dict(fid, fact) for fid, fact in merged.items()}
 
-    matching_ids = find_matching_facts(typed_facts, normalized, content=content, description=description)
+    matching_ids = find_matching_facts(typed_facts, normalized, content=content, description=description, command=command)
     if not matching_ids:
         return {}
 

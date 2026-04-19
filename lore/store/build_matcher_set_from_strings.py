@@ -22,6 +22,7 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
     path_globs = []
     content_regexes = []
     description_regexes = []
+    command_regexes = []
 
     for matcher in matchers:
         matcher_type, value = parse_matcher_string(matcher)
@@ -33,9 +34,12 @@ def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:
             content_regexes.append(compiled)
         elif matcher_type == "description":
             description_regexes.append(compiled)
+        elif matcher_type == "command":
+            command_regexes.append(compiled)
 
     return MatcherSet(
         path_globs=tuple(path_globs),
         content_regexes=tuple(content_regexes),
         description_regexes=tuple(description_regexes),
+        command_regexes=tuple(command_regexes),
     )

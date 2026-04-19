@@ -32,12 +32,13 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         tool_input = event_data.get("tool_input", {})
         file_path = tool_input.get("file_path", "")
         description = tool_input.get("description") or tool_input.get("query") or None
+        command = tool_input.get("command") or None
 
-        if not file_path and not description:
+        if not file_path and not description and not command:
             return {}
 
         content = _resolve_content(event_data, file_path, project_root) if file_path else None
-        facts = _find_facts_via_server(project_root, file_path, content, description, hook_tag)
+        facts = _find_facts_via_server(project_root, file_path, content, description, command, hook_tag)
         if not facts:
             return {}
 
@@ -74,7 +75,7 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         return {}
 
 
-def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, hook_tag: str | None) -> dict[str, dict]:
+def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, hook_tag: str | None) -> dict[str, dict]:
     """Try the lore server first, fall back to in-process matching."""
     params = {}
     if file_path:
@@ -83,13 +84,15 @@ def _find_facts_via_server(project_root: str, file_path: str, content: str | Non
         params["content"] = content
     if description is not None:
         params["description"] = description
+    if command is not None:
+        params["command"] = command
     if hook_tag is not None:
         params["tags"] = [hook_tag]
     result = try_send_fact_request(project_root, "find_facts", params)
     if result is not None:
         return result
     # Fallback: in-process
-    facts = match_facts_for_path(project_root, file_path, content=content, description=description)
+    facts = match_facts_for_path(project_root, file_path, content=content, description=description, command=command)
     return filter_facts_by_hook_tag(facts, hook_tag)
 
 
