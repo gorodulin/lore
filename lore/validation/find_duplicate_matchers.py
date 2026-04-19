@@ -14,9 +14,9 @@ def find_duplicate_matchers(fact: dict) -> dict[str, list[str]]:
     Example:
         >>> find_duplicate_matchers({
         ...     'fact': 'Test',
-        ...     'incl': ['g:**/*.js', 'g:**/*.js', 'g:**/*.ts'],
+        ...     'incl': ['p:**/*.js', 'p:**/*.js', 'p:**/*.ts'],
         ... })
-        {'g:**/*.js': ['g:**/*.js', 'g:**/*.js']}
+        {'p:**/*.js': ['p:**/*.js', 'p:**/*.js']}
     """
     # Collect all matchers
     all_matchers = []

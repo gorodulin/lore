@@ -9,8 +9,8 @@ def build_test_fact_set(*facts: tuple[str, dict]) -> dict:
 
     Example:
         >>> fact_set = build_test_fact_set(
-        ...     build_test_fact(fact_id="f1", incl=["g:**/*.js"]),
-        ...     build_test_fact(fact_id="f2", incl=["g:**/*.ts"]),
+        ...     build_test_fact(fact_id="f1", incl=["p:**/*.js"]),
+        ...     build_test_fact(fact_id="f2", incl=["p:**/*.ts"]),
         ... )
         >>> list(fact_set.keys())
         ['f1', 'f2']

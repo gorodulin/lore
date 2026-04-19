@@ -19,13 +19,13 @@ class ToolSet:
         are touched. Keep text short and actionable - a reminder, not docs.
         Always discuss with the user before creating.
 
-        Patterns: "g:<glob>" for paths, "r:<regex>" for content. Combine
+        Patterns: "p:<glob>" for paths, "c:<regex>" for content. Combine
         to narrow scope. Use skip for exceptions. Auto-placed in the
         nearest .lore.json by directory prefix of incl patterns.
 
         Args:
             fact: Short, actionable reminder text.
-            incl: Inclusion patterns (e.g. ["g:src/**/*.py", "r:import logging"]).
+            incl: Inclusion patterns (e.g. ["p:src/**/*.py", "c:import logging"]).
             skip: Optional exclusion patterns (same format as incl).
             tags: Optional tags (e.g. ["hook:read", "kind:convention"]).
         """
@@ -69,7 +69,7 @@ class ToolSet:
         """Edit an existing fact. Only provided fields are changed;
         omitted fields keep existing values. Use `read_fact` first.
 
-        Patterns: "g:<glob>" for paths, "r:<regex>" for content.
+        Patterns: "p:<glob>" for paths, "c:<regex>" for content.
 
         Args:
             fact_id: The ID of the fact to edit.

@@ -1,7 +1,7 @@
 import os
 import tempfile
 
-from lore.validation.validate_fact_structure import validate_fact_structure
+from lore.store.validate_fact_structure import validate_fact_structure
 from lore.store.format_facts_as_json import format_facts_as_json
 
 

@@ -1,6 +1,6 @@
 import re
 
-from lore.facts.parse_matcher_string import parse_matcher_string
+from lore.store.parse_matcher_string import parse_matcher_string
 from lore.globs.validate_glob_pattern import validate_glob_pattern
 from lore.errors.create_error import create_error
 from lore import error_codes

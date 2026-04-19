@@ -7,7 +7,7 @@ from tests.test_helpers.build_test_fact import build_test_fact
 
 
 def test_delete_basic(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     rules_file = tmp_path / ".lore.json"
     rules_file.write_text(json.dumps({"f1": fact}))
 
@@ -20,8 +20,8 @@ def test_delete_basic(tmp_path):
 
 
 def test_delete_preserves_other_facts(tmp_path):
-    _, fact1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
-    _, fact2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, fact1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
+    _, fact2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
     rules_file = tmp_path / ".lore.json"
     rules_file.write_text(json.dumps({"f1": fact1, "f2": fact2}))
 
@@ -33,7 +33,7 @@ def test_delete_preserves_other_facts(tmp_path):
 
 
 def test_delete_not_found(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     rules_file = tmp_path / ".lore.json"
     rules_file.write_text(json.dumps({"f1": fact}))
 
@@ -47,7 +47,7 @@ def test_delete_empty_tree(tmp_path):
 
 
 def test_delete_from_subdirectory(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     sub_dir = tmp_path / "sub"
     sub_dir.mkdir()
     rules_file = sub_dir / ".lore.json"
@@ -60,11 +60,11 @@ def test_delete_from_subdirectory(tmp_path):
 
 
 def test_delete_returns_deleted_fact(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", fact_text="Important fact", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", fact_text="Important fact", incl=["p:**/*.py"])
     rules_file = tmp_path / ".lore.json"
     rules_file.write_text(json.dumps({"f1": fact}))
 
     result = delete_fact(str(tmp_path), "f1")
 
     assert result["fact"] == "Important fact"
-    assert result["incl"] == ["g:**/*.py"]
+    assert result["incl"] == ["p:**/*.py"]

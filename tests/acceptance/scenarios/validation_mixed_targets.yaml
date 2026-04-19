@@ -7,27 +7,27 @@ rules:
   mixed-targets:
     fact: "Mixes files and directories"
     incl:
-      - "g:**/*.js"  # targets files
-      - "g:src/"     # targets directory
+      - "p:**/*.js"  # targets files
+      - "p:src/"     # targets directory
 
   files-only:
     fact: "Only targets files"
     incl:
-      - "g:**/*.js"
-      - "g:**/*.ts"
+      - "p:**/*.js"
+      - "p:**/*.ts"
 
   dirs-only:
     fact: "Only targets directories"
     incl:
-      - "g:src/"
-      - "g:lib/"
+      - "p:src/"
+      - "p:lib/"
 
   mixed-in-skip:
     fact: "Mixed in skip"
     incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
     skip:
-      - "g:vendor/"  # dir in skip while incl targets files
+      - "p:vendor/"  # dir in skip while incl targets files
 
 expected_warnings:
   mixed_targets:

@@ -15,7 +15,7 @@ import pytest
 import yaml
 from pathlib import Path
 
-from lore.facts.compile_fact_matchers import compile_fact_matchers
+from lore.store.build_fact_from_dict import build_fact_from_dict
 from lore.facts.find_matching_facts import find_matching_facts
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
@@ -70,15 +70,15 @@ class TestMatchingScenarios:
         """Test that paths match expected facts according to scenario."""
         scenario = load_scenario(scenario_path)
 
-        # Compile rules
-        compiled_facts = {
-            fact_id: compile_fact_matchers(fact)
+        # Build typed facts
+        typed_facts = {
+            fact_id: build_fact_from_dict(fact_id, fact)
             for fact_id, fact in scenario["rules"].items()
         }
 
         # Test each path
         for path, expected_facts in scenario["expected"].items():
-            actual_facts = find_matching_facts(compiled_facts, path)
+            actual_facts = find_matching_facts(typed_facts, path)
 
             # Sort for comparison (order doesn't matter)
             expected_sorted = sorted(expected_facts) if expected_facts else []

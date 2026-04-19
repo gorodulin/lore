@@ -1,66 +1,61 @@
 {
   "3ybk192TPB": {
     "fact": "All imports must be at the top of the file (no indented imports). Move inline imports to module level.",
-    "incl": ["g:**/*.py", "r:^\\s+import\\s+\\w"]
+    "incl": ["c:^\\s+import\\s+\\w", "p:**/*.py"]
   },
   "8qL2mP9kNx": {
     "fact": "Fact creation must auto-relocate to appropriate folder based on common parent of incl patterns",
-    "incl": [
-      "g:facts/create_fact.py",
-      "g:globs/compute_common_dir_from_matchers.py"
-    ],
+    "incl": ["p:facts/create_fact.py", "p:globs/compute_common_dir_from_matchers.py"],
     "tags": ["kind:design"]
   },
   "DaEC5FQP2v": {
     "fact": "Keep terms distinct: \"matcher\" = prefixed string (g:…, r:…). \"glob_pattern\" = raw value after prefix (**/*.py). Use \"glob_pattern\" not bare \"pattern\" for unprefixed glob values.",
-    "incl": [
-      "g:**/*.py",
-      "r:matcher|[^\\w]glob[^_\\w]|[^b]_pattern|[^_]pattern"
-    ],
+    "incl": ["c:matcher|[^\\w]glob[^_\\w]|[^b]_pattern|[^_]pattern", "p:**/*.py"],
     "tags": ["kind:convention"]
   },
   "GyiB7V5gBI": {
     "fact": "`__init__.py` files should be empty, they are for defining packages only",
-    "incl": ["g:**/__init__.py"]
+    "incl": ["p:**/__init__.py"]
   },
   "HnxA2azN7L": {
     "fact": "Python files are named after main function they contain.",
-    "incl": ["g:**/*.py"],
-    "skip": ["g:**/__init__.py", "g:error_codes.py"]
+    "incl": ["p:**/*.py"],
+    "skip": ["p:**/__init__.py", "p:error_codes.py"]
   },
   "QV4GQDuHhq": {
     "fact": "Use underscore prefix for internal helpers, not classes.",
-    "incl": ["g:**/*.py", "r:class _[A-Z]"],
-    "skip": ["g:**/__init__.py"],
+    "incl": ["c:class _[A-Z]", "p:**/*.py"],
+    "skip": ["p:**/__init__.py"],
     "tags": ["hook:read"]
   },
   "Z6bD5rHuaK": {
     "fact": "Tests and lints are run with one command `make test`",
-    "incl": ["g:**/*.py"],
-    "skip": ["g:**/__init__.py", "g:error_codes.py"]
+    "incl": ["p:**/*.py"],
+    "skip": ["p:**/__init__.py", "p:error_codes.py"]
   },
   "ZQofChpw84": {
     "fact": "Storage boundary: .lore.json stores matchers relative to its directory (local). merge_fact_tree_to_global_matchers converts to project-root-relative (global). All code outside lore/store/ must use global matchers. CRUD ops return global matchers.",
-    "incl": ["g:**/*.py", "r:load_facts|locate_fact|globalize|merge_fact_tree"],
+    "incl": ["c:load_facts|locate_fact|globalize|merge_fact_tree", "p:**/*.py"],
     "tags": ["kind:convention"]
   },
   "ml36SFjN3n": {
     "fact": "Test fact for folders",
-    "incl": ["g:**/"],
-    "skip": ["g:**/globs/"]
+    "incl": ["p:**/"],
+    "skip": ["p:**/globs/"]
   },
   "otH1mpeZiP": {
     "fact": "Glob patterns are directory-relative. merge_fact_tree_to_global_matchers globalizes at load; create_fact relativizes at write. Preserve this round-trip.",
-    "incl": [
-      "g:facts/create_fact.py",
-      "g:globs/**/*.py",
-      "g:store/merge_fact_tree_to_global_matchers.py"
-    ],
-    "skip": ["g:globs/compute_common_dir_from_matchers.py"]
+    "incl": ["p:facts/create_fact.py", "p:globs/**/*.py", "p:store/merge_fact_tree_to_global_matchers.py"],
+    "skip": ["p:globs/compute_common_dir_from_matchers.py"]
+  },
+  "pGvwDm9XJa": {
+    "fact": "Ensure this file semantically belongs in its folder — the namespace should reflect its purpose, not just mechanical grouping.",
+    "incl": ["p:**/*.py"],
+    "tags": ["hook:create"]
   },
   "yk0NpgX8iR": {
     "fact": "Function name should start with a verb. Predicates can start with 'is_', 'has_', 'can_' etc.",
-    "incl": ["g:**/*.py"],
-    "skip": ["g:**/__init__.py", "g:error_codes.py"]
+    "incl": ["p:**/*.py"],
+    "skip": ["p:**/__init__.py", "p:error_codes.py"]
   }
 }

@@ -8,17 +8,17 @@ rules:
   prefix-wildcard:
     fact: "Files starting with test_"
     incl:
-      - "g:**/test_*.py"
+      - "p:**/test_*.py"
 
   suffix-wildcard:
     fact: "TypeScript declaration files"
     incl:
-      - "g:**/*.d.ts"
+      - "p:**/*.d.ts"
 
   component-suffix:
     fact: "Files ending with Component.tsx"
     incl:
-      - "g:**/*Component.tsx"
+      - "p:**/*Component.tsx"
 
 paths:
   - test_utils.py

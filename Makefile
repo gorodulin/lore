@@ -24,11 +24,11 @@ ruff:
 	uv run ruff check .
 
 vulture:
-	uv run vulture lore/ scripts/vulture_whitelist.py --min-confidence 60
+	uv run vulture lore/ scripts/vulture_whitelist.py --min-confidence 60 --exclude lore/matchers/find_tool_contexts_for_prefixes.py
 
 skylos:
 	@json=$$(uv run skylos . --json --secrets --confidence 80 --exclude-folder .claude-plugins-official --exclude-folder tests --exclude-folder scripts 2>/dev/null); \
-	json=$$(echo "$$json" | jq 'if .unused_functions then .unused_functions |= [.[] | select(.name | test("^(ensure_lore_server|FactStore\\.)") | not)] else . end'); \
+	json=$$(echo "$$json" | jq 'if .unused_functions then .unused_functions |= [.[] | select(.name | test("^(ensure_lore_server|find_tool_contexts_for_prefixes|FactStore\\.)") | not)] else . end'); \
 	unused=$$(echo "$$json" | jq -r '.unused_functions // [] | length'); \
 	imports=$$(echo "$$json" | jq -r '.unused_imports // [] | length'); \
 	security=$$(echo "$$json" | jq -r '.security_issues // [] | length'); \

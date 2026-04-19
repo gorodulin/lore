@@ -7,27 +7,27 @@ rules:
   dup-in-incl:
     fact: "Has duplicate in incl"
     incl:
-      - "g:**/*.js"
-      - "g:**/*.ts"
-      - "g:**/*.js"  # duplicate
+      - "p:**/*.js"
+      - "p:**/*.ts"
+      - "p:**/*.js"  # duplicate
 
   dup-across:
     fact: "Same matcher in incl and skip"
     incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
     skip:
-      - "g:**/*.js"  # same as incl
+      - "p:**/*.js"  # same as incl
 
   no-dups:
     fact: "Clean fact with no duplicates"
     incl:
-      - "g:**/*.py"
+      - "p:**/*.py"
     skip:
-      - "g:vendor/**"
+      - "p:vendor/**"
 
 expected_warnings:
   duplicates:
     dup-in-incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
     dup-across:
-      - "g:**/*.js"
+      - "p:**/*.js"

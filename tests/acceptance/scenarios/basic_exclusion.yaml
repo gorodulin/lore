@@ -7,9 +7,9 @@ rules:
   js-except-vendor:
     fact: "JavaScript files except vendor directory"
     incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
     skip:
-      - "g:vendor/**"
+      - "p:vendor/**"
 
 paths:
   - src/app.js

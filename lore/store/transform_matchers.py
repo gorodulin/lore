@@ -1,5 +1,5 @@
-from lore.facts.parse_matcher_string import parse_matcher_string
-from lore.facts.build_matcher_string import build_matcher_string
+from lore.store.parse_matcher_string import parse_matcher_string
+from lore.store.build_matcher_string import build_matcher_string
 
 
 def transform_matchers(matchers: list[str], transforms: dict) -> list[str]:
@@ -10,7 +10,7 @@ def transform_matchers(matchers: list[str], transforms: dict) -> list[str]:
     returns None, are kept unchanged.
 
     Args:
-        matchers: List of prefixed matcher strings (e.g., ["g:**/*.py", "r:import os"])
+        matchers: List of prefixed matcher strings (e.g., ["p:**/*.py", "c:import os"])
         transforms: Dict mapping matcher type to transform function.
             Each function takes a raw value and returns a transformed value,
             or None to keep the original matcher unchanged.
@@ -20,10 +20,10 @@ def transform_matchers(matchers: list[str], transforms: dict) -> list[str]:
 
     Examples:
         >>> transform_matchers(
-        ...     ["g:src/**/*.py", "r:import os"],
+        ...     ["p:src/**/*.py", "c:import os"],
         ...     {"glob": lambda v: f"app/{v}"},
         ... )
-        ['g:app/src/**/*.py', 'r:import os']
+        ['p:app/src/**/*.py', 'c:import os']
     """
     result = []
     for matcher in matchers:

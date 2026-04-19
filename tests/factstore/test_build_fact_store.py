@@ -4,7 +4,7 @@ from lore.factstore.build_fact_store import build_fact_store
 
 
 def test_build_fact_store_returns_loaded_store(tmp_path):
-    facts = {"f1": {"fact": "Python files", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Python files", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
     store = build_fact_store(str(tmp_path))

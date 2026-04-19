@@ -7,7 +7,7 @@ rules:
   globstar-fact:
     fact: "Pattern with globstar"
     incl:
-      - "g:src/**/app.js"
+      - "p:src/**/app.js"
 
 paths:
   - src/app.js           # ** matches zero segments

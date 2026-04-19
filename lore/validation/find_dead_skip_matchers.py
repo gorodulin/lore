@@ -22,10 +22,10 @@ def find_dead_skip_matchers(fact: dict) -> list[str]:
     Example:
         >>> find_dead_skip_matchers({
         ...     'fact': 'Test',
-        ...     'incl': ['g:src/**/*.js'],
-        ...     'skip': ['g:vendor/**'],  # can never match src/** paths
+        ...     'incl': ['p:src/**/*.js'],
+        ...     'skip': ['p:vendor/**'],  # can never match src/** paths
         ... })
-        ['g:vendor/**']
+        ['p:vendor/**']
     """
     incl = fact.get("incl", [])
     skip = fact.get("skip", [])

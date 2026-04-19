@@ -13,10 +13,10 @@ def find_duplicate_matchers_across_facts(fact_set: dict[str, dict]) -> dict[str,
 
     Example:
         >>> find_duplicate_matchers_across_facts({
-        ...     'f1': {'fact': 'Test', 'incl': ['g:**/*.js', 'g:**/*.js']},
-        ...     'f2': {'fact': 'Test', 'incl': ['g:**/*.ts']},
+        ...     'f1': {'fact': 'Test', 'incl': ['p:**/*.js', 'p:**/*.js']},
+        ...     'f2': {'fact': 'Test', 'incl': ['p:**/*.ts']},
         ... })
-        {'f1': {'g:**/*.js': ['g:**/*.js', 'g:**/*.js']}}
+        {'f1': {'p:**/*.js': ['p:**/*.js', 'p:**/*.js']}}
     """
     result = {}
     for fact_id, fact in fact_set.items():

@@ -10,8 +10,8 @@ class TestRunAllValidationChecks:
 
     def test_clean_facts(self, tmp_path):
         facts = {
-            "f1": {"fact": "Fact one", "incl": ["g:src/**/*.py"]},
-            "f2": {"fact": "Fact two", "incl": ["g:lib/**/*.js"]},
+            "f1": {"fact": "Fact one", "incl": ["p:src/**/*.py"]},
+            "f2": {"fact": "Fact two", "incl": ["p:lib/**/*.js"]},
         }
         (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
@@ -21,7 +21,7 @@ class TestRunAllValidationChecks:
 
     def test_detects_duplicate_matchers(self, tmp_path):
         facts = {
-            "f1": {"fact": "Fact one", "incl": ["g:**/*.py", "g:**/*.py"]},
+            "f1": {"fact": "Fact one", "incl": ["p:**/*.py", "p:**/*.py"]},
         }
         (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
@@ -34,8 +34,8 @@ class TestRunAllValidationChecks:
         facts = {
             "f1": {
                 "fact": "Fact one",
-                "incl": ["g:src/**/*.py"],
-                "skip": ["g:vendor/**"],
+                "incl": ["p:src/**/*.py"],
+                "skip": ["p:vendor/**"],
             },
         }
         (tmp_path / ".lore.json").write_text(json.dumps(facts))
@@ -48,7 +48,7 @@ class TestRunAllValidationChecks:
         facts = {
             "f1": {
                 "fact": "Fact one",
-                "incl": ["g:**/*.py", "g:src/**/*.py"],
+                "incl": ["p:**/*.py", "p:src/**/*.py"],
             },
         }
         (tmp_path / ".lore.json").write_text(json.dumps(facts))
@@ -63,8 +63,8 @@ class TestRunAllValidationChecks:
         # After globalization they should NOT be duplicates
         (tmp_path / "src").mkdir()
         (tmp_path / "lib").mkdir()
-        src_facts = {"f1": {"fact": "Src fact", "incl": ["g:**/*.py"]}}
-        lib_facts = {"f2": {"fact": "Lib fact", "incl": ["g:**/*.py"]}}
+        src_facts = {"f1": {"fact": "Src fact", "incl": ["p:**/*.py"]}}
+        lib_facts = {"f2": {"fact": "Lib fact", "incl": ["p:**/*.py"]}}
         (tmp_path / "src" / ".lore.json").write_text(json.dumps(src_facts))
         (tmp_path / "lib" / ".lore.json").write_text(json.dumps(lib_facts))
 
@@ -78,10 +78,10 @@ class TestRunAllValidationChecks:
         facts = {
             "f1": {
                 "fact": "Fact one",
-                "incl": ["g:**/*.py", "g:src/**/*.py"],
-                "skip": ["g:vendor/**"],
+                "incl": ["p:**/*.py", "p:src/**/*.py"],
+                "skip": ["p:vendor/**"],
             },
-            "f2": {"fact": "Fact two", "incl": ["g:**/*.js", "g:**/*.js"]},
+            "f2": {"fact": "Fact two", "incl": ["p:**/*.js", "p:**/*.js"]},
         }
         (tmp_path / ".lore.json").write_text(json.dumps(facts))
 

@@ -7,19 +7,19 @@ rules:
   root-configs:
     fact: "Root config files"
     incl:
-      - "g:*.json"
-      - "g:*.yaml"
-      - "g:*.yml"
+      - "p:*.json"
+      - "p:*.yaml"
+      - "p:*.yml"
 
   all-markdown:
     fact: "All markdown files"
     incl:
-      - "g:**/*.md"
+      - "p:**/*.md"
 
   nested-only:
     fact: "Only nested files"
     incl:
-      - "g:*/**/*.js"  # requires at least one dir
+      - "p:*/**/*.js"  # requires at least one dir
 
 paths:
   - package.json

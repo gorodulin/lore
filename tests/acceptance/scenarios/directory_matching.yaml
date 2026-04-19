@@ -7,12 +7,12 @@ rules:
   source-dirs:
     fact: "Source directories"
     incl:
-      - "g:src/**/"
+      - "p:src/**/"
 
   js-files:
     fact: "JavaScript files"
     incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
 
 paths:
   - src/

@@ -19,7 +19,7 @@ async def mcp_client(tmp_path):
 async def test_create_and_read_round_trip(mcp_client, tmp_path):
     result = await mcp_client.call_tool(
         "create_fact",
-        {"fact": "Test fact", "incl": ["g:**/*.py"]},
+        {"fact": "Test fact", "incl": ["p:**/*.py"]},
     )
     created = _parse_data(result)
     fact_id = created["fact_id"]
@@ -31,13 +31,13 @@ async def test_create_and_read_round_trip(mcp_client, tmp_path):
     read = _parse_data(read_result)
     assert read["fact_id"] == fact_id
     assert read["fact"] == "Test fact"
-    assert read["incl"] == ["g:**/*.py"]
+    assert read["incl"] == ["p:**/*.py"]
 
 
 async def test_read_fact_globalizes_patterns(mcp_client, tmp_path):
     result = await mcp_client.call_tool(
         "create_fact",
-        {"fact": "Subdir fact", "incl": ["g:sub/**/*.py"]},
+        {"fact": "Subdir fact", "incl": ["p:sub/**/*.py"]},
     )
     fact_id = _parse_data(result)["fact_id"]
 
@@ -46,13 +46,13 @@ async def test_read_fact_globalizes_patterns(mcp_client, tmp_path):
         {"fact_id": fact_id},
     )
     read = _parse_data(read_result)
-    assert read["incl"] == ["g:sub/**/*.py"]
+    assert read["incl"] == ["p:sub/**/*.py"]
 
 
 async def test_find_facts_matching(mcp_client, tmp_path):
     await mcp_client.call_tool(
         "create_fact",
-        {"fact": "Python fact", "incl": ["g:**/*.py"]},
+        {"fact": "Python fact", "incl": ["p:**/*.py"]},
     )
     result = await mcp_client.call_tool(
         "find_facts",
@@ -67,7 +67,7 @@ async def test_find_facts_matching(mcp_client, tmp_path):
 async def test_edit_updates_fact(mcp_client, tmp_path):
     result = await mcp_client.call_tool(
         "create_fact",
-        {"fact": "Original", "incl": ["g:**/*.py"]},
+        {"fact": "Original", "incl": ["p:**/*.py"]},
     )
     fact_id = _parse_data(result)["fact_id"]
 
@@ -87,7 +87,7 @@ async def test_edit_updates_fact(mcp_client, tmp_path):
 async def test_delete_removes_fact(mcp_client, tmp_path):
     result = await mcp_client.call_tool(
         "create_fact",
-        {"fact": "To delete", "incl": ["g:**/*.py"]},
+        {"fact": "To delete", "incl": ["p:**/*.py"]},
     )
     fact_id = _parse_data(result)["fact_id"]
 

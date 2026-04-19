@@ -1,4 +1,4 @@
-from lore.facts.parse_matcher_string import parse_matcher_string
+from lore.store.parse_matcher_string import parse_matcher_string
 from lore.globs.compile_glob_pattern import compile_glob_pattern
 from lore.globs.extract_glob_fixed_prefix import extract_glob_fixed_prefix
 
@@ -11,7 +11,7 @@ def compute_common_dir_from_matchers(matchers: list[str]) -> str:
     excluding the leaf (file) segment.
 
     Args:
-        matchers: List of matcher strings (e.g., ["g:lore/globs/**/*.py"])
+        matchers: List of matcher strings (e.g., ["p:lore/globs/**/*.py"])
 
     Returns:
         Directory string (e.g., "lore/globs") or "." if no common prefix.

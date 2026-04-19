@@ -17,33 +17,33 @@ def _setup_fact(tmp_path, fact_id="f1", **kwargs):
 
 
 def test_edit_fact_text(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     result = edit_fact(str(tmp_path), "f1", fact_text="Updated text")
 
     assert result["fact"] == "Updated text"
-    assert result["incl"] == ["g:**/*.py"]
+    assert result["incl"] == ["p:**/*.py"]
 
 
 def test_edit_incl(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
-    result = edit_fact(str(tmp_path), "f1", incl=["g:**/*.js"])
+    result = edit_fact(str(tmp_path), "f1", incl=["p:**/*.js"])
 
-    assert result["incl"] == ["g:**/*.js"]
+    assert result["incl"] == ["p:**/*.js"]
     assert result["fact"] == "Test fact"
 
 
 def test_edit_skip(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
-    result = edit_fact(str(tmp_path), "f1", skip=["g:vendor/**"])
+    result = edit_fact(str(tmp_path), "f1", skip=["p:vendor/**"])
 
-    assert result["skip"] == ["g:vendor/**"]
+    assert result["skip"] == ["p:vendor/**"]
 
 
 def test_edit_remove_skip(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"], skip=["g:vendor/**"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"], skip=["p:vendor/**"])
 
     result = edit_fact(str(tmp_path), "f1", skip=[])
 
@@ -51,31 +51,31 @@ def test_edit_remove_skip(tmp_path):
 
 
 def test_edit_preserves_unmodified(tmp_path):
-    _setup_fact(tmp_path, fact_text="Original", incl=["g:**/*.py"], skip=["g:vendor/**"])
+    _setup_fact(tmp_path, fact_text="Original", incl=["p:**/*.py"], skip=["p:vendor/**"])
 
     result = edit_fact(str(tmp_path), "f1", fact_text="New text")
 
     assert result["fact"] == "New text"
-    assert result["incl"] == ["g:**/*.py"]
-    assert result["skip"] == ["g:vendor/**"]
+    assert result["incl"] == ["p:**/*.py"]
+    assert result["skip"] == ["p:vendor/**"]
 
 
 def test_edit_not_found(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     with pytest.raises(ValueError, match="not found"):
         edit_fact(str(tmp_path), "nonexistent", fact_text="New text")
 
 
 def test_edit_invalid_update(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     with pytest.raises(ValueError, match="Invalid fact"):
         edit_fact(str(tmp_path), "f1", incl=[])
 
 
 def test_edit_persists_to_file(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     edit_fact(str(tmp_path), "f1", fact_text="Persisted")
 
@@ -84,7 +84,7 @@ def test_edit_persists_to_file(tmp_path):
 
 
 def test_edit_add_tags(tmp_path):
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     result = edit_fact(str(tmp_path), "f1", tags=["hook:read"])
 
@@ -92,7 +92,7 @@ def test_edit_add_tags(tmp_path):
 
 
 def test_edit_remove_tags(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"], tags=["hook:read"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"], tags=["hook:read"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": fact}))
 
     result = edit_fact(str(tmp_path), "f1", tags=[])
@@ -101,7 +101,7 @@ def test_edit_remove_tags(tmp_path):
 
 
 def test_edit_preserves_tags_when_none(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"], tags=["hook:edit"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"], tags=["hook:edit"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": fact}))
 
     result = edit_fact(str(tmp_path), "f1", fact_text="Updated")
@@ -111,8 +111,8 @@ def test_edit_preserves_tags_when_none(tmp_path):
 
 
 def test_edit_preserves_other_facts(tmp_path):
-    _, fact1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
-    _, fact2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, fact1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
+    _, fact2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
     rules_file = tmp_path / ".lore.json"
     rules_file.write_text(json.dumps({"f1": fact1, "f2": fact2}))
 
@@ -126,8 +126,8 @@ def test_edit_preserves_other_facts(tmp_path):
 def test_edit_relocates_to_new_folder(tmp_path):
     """Test that editing patterns relocates the fact to a new folder."""
     # Create two facts in root (so root .lore.json doesn't get deleted)
-    _, fact1 = build_test_fact(fact_id="api_fact", incl=["g:src/api/**/*.ts"])
-    _, fact2 = build_test_fact(fact_id="other_fact", incl=["g:**/*.py"])
+    _, fact1 = build_test_fact(fact_id="api_fact", incl=["p:src/api/**/*.ts"])
+    _, fact2 = build_test_fact(fact_id="other_fact", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"api_fact": fact1, "other_fact": fact2}))
 
     # Edit to move to src/api/ with more specific patterns
@@ -135,7 +135,7 @@ def test_edit_relocates_to_new_folder(tmp_path):
         str(tmp_path),
         "api_fact",
         fact_text="API handlers",
-        incl=["g:src/api/handlers/**/*.ts", "g:src/api/routes/**/*.ts"],
+        incl=["p:src/api/handlers/**/*.ts", "p:src/api/routes/**/*.ts"],
     )
 
     # Fact should now be in src/api/.lore.json
@@ -150,14 +150,14 @@ def test_edit_relocates_to_new_folder(tmp_path):
     api_rules = load_facts_file(str(tmp_path / "src" / "api" / ".lore.json"))
     assert "api_fact" in api_rules
     assert api_rules["api_fact"]["fact"] == "API handlers"
-    assert api_rules["api_fact"]["incl"] == ["g:handlers/**/*.ts", "g:routes/**/*.ts"]
+    assert api_rules["api_fact"]["incl"] == ["p:handlers/**/*.ts", "p:routes/**/*.ts"]
 
 
 def test_edit_stays_in_same_folder_when_patterns_unchanged(tmp_path):
     """Test that editing non-pattern fields keeps fact in same folder."""
     # Create fact in src/.lore.json
     (tmp_path / "src").mkdir()
-    _, fact = build_test_fact(fact_id="src_fact", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="src_fact", incl=["p:**/*.py"])
     (tmp_path / "src" / ".lore.json").write_text(json.dumps({"src_fact": fact}))
 
     # Edit only the fact text (patterns unchanged)
@@ -171,15 +171,15 @@ def test_edit_stays_in_same_folder_when_patterns_unchanged(tmp_path):
     assert "src/.lore.json" in result["file_path"]
     assert result["fact"] == "Updated source code fact"
     # Patterns should be global (project-root-relative)
-    assert result["incl"] == ["g:src/**/*.py"]
+    assert result["incl"] == ["p:src/**/*.py"]
 
 
 def test_edit_relocates_to_root_when_patterns_widen(tmp_path):
     """Test that widening patterns relocates to root if no common parent exists."""
     # Create two facts in src/api/ (so that folder doesn't get deleted)
     (tmp_path / "src" / "api").mkdir(parents=True)
-    _, fact1 = build_test_fact(fact_id="api_fact", incl=["g:handlers/**/*.ts"])
-    _, fact2 = build_test_fact(fact_id="other_api_fact", incl=["g:middleware/**/*.ts"])
+    _, fact1 = build_test_fact(fact_id="api_fact", incl=["p:handlers/**/*.ts"])
+    _, fact2 = build_test_fact(fact_id="other_api_fact", incl=["p:middleware/**/*.ts"])
     (tmp_path / "src" / "api" / ".lore.json").write_text(
         json.dumps({"api_fact": fact1, "other_api_fact": fact2})
     )
@@ -188,7 +188,7 @@ def test_edit_relocates_to_root_when_patterns_widen(tmp_path):
     result = edit_fact(
         str(tmp_path),
         "api_fact",
-        incl=["g:src/**/*.ts", "g:lib/**/*.ts"],  # No common parent beyond root
+        incl=["p:src/**/*.ts", "p:lib/**/*.ts"],  # No common parent beyond root
     )
 
     # Should relocate to root
@@ -208,37 +208,37 @@ def test_edit_relocates_to_root_when_patterns_widen(tmp_path):
 def test_edit_with_new_skip_patterns_stays_in_place(tmp_path):
     """Test that adding skip patterns doesn't affect relocation (only incl matters)."""
     # Create fact in root
-    _, fact = build_test_fact(fact_id="test_fact", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="test_fact", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"test_fact": fact}))
 
     # Edit to add skip patterns (skip doesn't affect relocation, only incl does)
     result = edit_fact(
         str(tmp_path),
         "test_fact",
-        skip=["g:vendor/**"],
+        skip=["p:vendor/**"],
     )
 
     # Should stay in root (skip patterns don't affect target folder calculation)
     assert result["file_path"].endswith(".lore.json")
-    assert result["skip"] == ["g:vendor/**"]
+    assert result["skip"] == ["p:vendor/**"]
 
 
 def test_edit_invalid_update_preserves_original(tmp_path):
     """Structural validation rejects before any file mutation occurs."""
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     with pytest.raises(ValueError, match="Invalid fact"):
         edit_fact(str(tmp_path), "f1", incl=[])
 
     loaded = load_facts_file(str(tmp_path / ".lore.json"))
     assert "f1" in loaded
-    assert loaded["f1"]["incl"] == ["g:**/*.py"]
+    assert loaded["f1"]["incl"] == ["p:**/*.py"]
 
 
 @pytest.mark.skipif(os.getuid() == 0, reason="Cannot restrict permissions as root")
 def test_edit_restores_original_on_create_failure(tmp_path):
     """Original fact is restored when create_fact fails after delete."""
-    _setup_fact(tmp_path, incl=["g:**/*.py"])
+    _setup_fact(tmp_path, incl=["p:**/*.py"])
 
     # Block writes to the relocation target
     blocked_dir = tmp_path / "blocked"
@@ -246,11 +246,11 @@ def test_edit_restores_original_on_create_failure(tmp_path):
 
     try:
         with pytest.raises(ValueError, match="Failed to create replacement"):
-            edit_fact(str(tmp_path), "f1", incl=["g:blocked/sub/**/*.py"])
+            edit_fact(str(tmp_path), "f1", incl=["p:blocked/sub/**/*.py"])
 
         # Original fact must be restored
         loaded = load_facts_file(str(tmp_path / ".lore.json"))
         assert "f1" in loaded
-        assert loaded["f1"]["incl"] == ["g:**/*.py"]
+        assert loaded["f1"]["incl"] == ["p:**/*.py"]
     finally:
         blocked_dir.chmod(0o755)

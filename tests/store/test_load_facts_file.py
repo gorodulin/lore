@@ -8,29 +8,29 @@ from tests.test_helpers.build_test_fact_set import build_test_fact_set
 
 def test_load_valid_rules_file(tmp_path):
     rules_file = tmp_path / ".lore.json"
-    _, fact = build_test_fact(fact_id="1", incl=["g:**/api.js"])
+    _, fact = build_test_fact(fact_id="1", incl=["p:**/api.js"])
     rules_file.write_text(json.dumps({"1": fact}))
 
     rules = load_facts_file(str(rules_file))
     assert "1" in rules
     assert rules["1"]["fact"] == "Test fact"
-    assert rules["1"]["incl"] == ["g:**/api.js"]
+    assert rules["1"]["incl"] == ["p:**/api.js"]
 
 
 def test_load_valid_with_skip(tmp_path):
     rules_file = tmp_path / ".lore.json"
-    _, fact = build_test_fact(incl=["g:**/*.js"], skip=["g:vendor/**"])
+    _, fact = build_test_fact(incl=["p:**/*.js"], skip=["p:vendor/**"])
     rules_file.write_text(json.dumps({"1": fact}))
 
     rules = load_facts_file(str(rules_file))
-    assert rules["1"]["skip"] == ["g:vendor/**"]
+    assert rules["1"]["skip"] == ["p:vendor/**"]
 
 
 def test_load_multiple_facts(tmp_path):
     rules_file = tmp_path / ".lore.json"
     ruleset = build_test_fact_set(
-        build_test_fact(fact_id="f1", incl=["g:**/*.js"]),
-        build_test_fact(fact_id="f2", incl=["g:**/*.ts"]),
+        build_test_fact(fact_id="f1", incl=["p:**/*.js"]),
+        build_test_fact(fact_id="f2", incl=["p:**/*.ts"]),
     )
     rules_file.write_text(json.dumps(ruleset))
 
@@ -73,8 +73,8 @@ def test_load_preserves_fact_structure(tmp_path):
     content = {
         "uuid-123": {
             "fact": "Backend API endpoints must be authenticated.",
-            "incl": ["g:**/backend/**", "g:**/api.js"],
-            "skip": ["g:vendor/**", "g:**/*.min.js"],
+            "incl": ["p:**/backend/**", "p:**/api.js"],
+            "skip": ["p:vendor/**", "p:**/*.min.js"],
         }
     }
     rules_file.write_text(json.dumps(content))

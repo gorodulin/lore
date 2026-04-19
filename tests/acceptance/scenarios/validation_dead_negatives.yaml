@@ -7,27 +7,27 @@ rules:
   dead-negative:
     fact: "Has a dead negative"
     incl:
-      - "g:src/**/*.js"
+      - "p:src/**/*.js"
     skip:
-      - "g:vendor/**"  # can never match src/ paths
+      - "p:vendor/**"  # can never match src/ paths
 
   valid-negative:
     fact: "Has a valid negative"
     incl:
-      - "g:src/**/*.js"
+      - "p:src/**/*.js"
     skip:
-      - "g:src/vendor/**"  # can exclude src/vendor/*.js
+      - "p:src/vendor/**"  # can exclude src/vendor/*.js
 
   globstar-incl:
     fact: "Globstar incl matches anything"
     incl:
-      - "g:**/*.js"  # matches everywhere
+      - "p:**/*.js"  # matches everywhere
     skip:
-      - "g:vendor/**"  # valid - could match vendor/*.js
+      - "p:vendor/**"  # valid - could match vendor/*.js
 
 expected_warnings:
   dead_negatives:
     dead-negative:
-      - "g:vendor/**"
+      - "p:vendor/**"
     valid-negative: []
     globstar-incl: []

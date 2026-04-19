@@ -6,9 +6,9 @@ from tests.test_helpers.build_test_fact_set import build_test_fact_set
 
 def test_validate_all_valid():
     ruleset = build_test_fact_set(
-        build_test_fact(fact_id="1", incl=["g:**/api.js"]),
-        build_test_fact(fact_id="2", incl=["g:src/*.ts"]),
-        build_test_fact(fact_id="3", incl=["g:lib/utils/file.ts"]),
+        build_test_fact(fact_id="1", incl=["p:**/api.js"]),
+        build_test_fact(fact_id="2", incl=["p:src/*.ts"]),
+        build_test_fact(fact_id="3", incl=["p:lib/utils/file.ts"]),
     )
 
     valid, errors = validate_fact_set(ruleset)
@@ -40,7 +40,7 @@ def test_validate_empty_incl():
 
 def test_validate_invalid_glob():
     ruleset = {
-        "1": {"fact": "Test", "incl": ["g:**/**/*.js"]},  # Multiple globstars
+        "1": {"fact": "Test", "incl": ["p:**/**/*.js"]},  # Multiple globstars
     }
 
     valid, errors = validate_fact_set(ruleset)
@@ -61,7 +61,7 @@ def test_validate_invalid_matcher_prefix():
 def test_validate_multiple_invalid():
     ruleset = {
         "1": {"fact": "Test", "incl": []},  # Empty incl
-        "2": {"fact": "Test", "incl": ["g:**/**/*.js"]},  # Invalid glob
+        "2": {"fact": "Test", "incl": ["p:**/**/*.js"]},  # Invalid glob
     }
 
     valid, errors = validate_fact_set(ruleset)
@@ -71,7 +71,7 @@ def test_validate_multiple_invalid():
 
 def test_validate_with_skip():
     ruleset = build_test_fact_set(
-        build_test_fact(fact_id="1", incl=["g:**/*.js"], skip=["g:vendor/**"]),
+        build_test_fact(fact_id="1", incl=["p:**/*.js"], skip=["p:vendor/**"]),
     )
 
     valid, errors = validate_fact_set(ruleset)
@@ -81,7 +81,7 @@ def test_validate_with_skip():
 
 def test_validate_invalid_skip():
     ruleset = {
-        "1": {"fact": "Test", "incl": ["g:**/*.js"], "skip": ["invalid"]},
+        "1": {"fact": "Test", "incl": ["p:**/*.js"], "skip": ["invalid"]},
     }
 
     valid, errors = validate_fact_set(ruleset)

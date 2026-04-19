@@ -1,7 +1,7 @@
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
+from lore.store.build_fact_from_dict import build_fact_from_dict
 from lore.validation.validate_fact_set import validate_fact_set
-from lore.facts.compile_fact_matchers import compile_fact_matchers
 from lore.facts.find_matching_facts import find_matching_facts
 from lore.paths.resolve_relative_path import resolve_relative_path
 
@@ -10,7 +10,7 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
     """Run the full matching pipeline and return facts matching a file path.
 
     Loads all .lore.json files under project_root, merges, validates,
-    compiles, and matches against the given file_path.
+    builds typed Facts, and matches against the given file_path.
 
     Args:
         project_root: Absolute path to the project root directory
@@ -18,7 +18,7 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
         content: Optional file content for regex matchers
 
     Returns:
-        Dict mapping fact_id to full fact dict for every matching fact.
+        Dict mapping fact_id to raw fact dict for every matching fact.
 
     Raises:
         ValueError: If project_root is empty, file_path is outside project,
@@ -42,9 +42,9 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
         messages = [f"[{e['code']}] {e.get('fact_id', '?')}: {e['message']}" for e in errors]
         raise ValueError(f"Invalid facts: {'; '.join(messages)}")
 
-    compiled = {fid: compile_fact_matchers(fact) for fid, fact in merged.items()}
+    typed_facts = {fid: build_fact_from_dict(fid, fact) for fid, fact in merged.items()}
 
-    matching_ids = find_matching_facts(compiled, normalized, content=content)
+    matching_ids = find_matching_facts(typed_facts, normalized, content=content)
     if not matching_ids:
         return {}
 

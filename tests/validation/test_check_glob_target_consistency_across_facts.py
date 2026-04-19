@@ -6,16 +6,16 @@ from lore.validation.check_glob_target_consistency_across_facts import (
 class TestCheckGlobTargetConsistencyAcrossFacts:
     def test_all_consistent(self):
         fact_set = {
-            "f1": {"fact": "Test", "incl": ["g:**/*.js"]},
-            "f2": {"fact": "Test", "incl": ["g:**/*.ts"]},
+            "f1": {"fact": "Test", "incl": ["p:**/*.js"]},
+            "f2": {"fact": "Test", "incl": ["p:**/*.ts"]},
         }
         result = check_glob_target_consistency_across_facts(fact_set)
         assert result == {}
 
     def test_one_inconsistent(self):
         fact_set = {
-            "f1": {"fact": "Test", "incl": ["g:**/*.js", "g:src/"]},  # mixed
-            "f2": {"fact": "Test", "incl": ["g:**/*.ts"]},
+            "f1": {"fact": "Test", "incl": ["p:**/*.js", "p:src/"]},  # mixed
+            "f2": {"fact": "Test", "incl": ["p:**/*.ts"]},
         }
         result = check_glob_target_consistency_across_facts(fact_set)
         assert "f1" in result
@@ -23,8 +23,8 @@ class TestCheckGlobTargetConsistencyAcrossFacts:
 
     def test_multiple_inconsistent(self):
         fact_set = {
-            "f1": {"fact": "Test", "incl": ["g:**/*.js", "g:src/"]},
-            "f2": {"fact": "Test", "incl": ["g:**/*.ts", "g:lib/"]},
+            "f1": {"fact": "Test", "incl": ["p:**/*.js", "p:src/"]},
+            "f2": {"fact": "Test", "incl": ["p:**/*.ts", "p:lib/"]},
         }
         result = check_glob_target_consistency_across_facts(fact_set)
         assert "f1" in result

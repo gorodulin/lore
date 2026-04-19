@@ -1,4 +1,4 @@
-from lore.facts.parse_matcher_string import parse_matcher_string
+from lore.store.parse_matcher_string import parse_matcher_string
 from lore.globs.compile_glob_pattern import compile_glob_pattern
 
 
@@ -24,9 +24,9 @@ def check_glob_target_consistency(fact: dict) -> dict | None:
     Example:
         >>> check_glob_target_consistency({
         ...     'fact': 'Mixed targets',
-        ...     'incl': ['g:**/*.js', 'g:src/'],
+        ...     'incl': ['p:**/*.js', 'p:src/'],
         ... })
-        {'file_globs': ['g:**/*.js'], 'dir_globs': ['g:src/']}
+        {'file_globs': ['p:**/*.js'], 'dir_globs': ['p:src/']}
     """
     file_globs = []
     dir_globs = []

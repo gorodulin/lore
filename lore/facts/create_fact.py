@@ -2,9 +2,10 @@ import os
 import sys
 
 from lore.facts.generate_fact_id import generate_fact_id
-from lore.facts.globalize_fact_matchers import globalize_fact_matchers
-from lore.validation.validate_fact_structure import validate_fact_structure
-from lore.facts.transform_matchers import transform_matchers
+from lore.paths.compute_rel_dir import compute_rel_dir
+from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
+from lore.store.validate_fact_structure import validate_fact_structure
+from lore.store.transform_matchers import transform_matchers
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.load_facts_file import load_facts_file
 from lore.store.save_facts_file import save_facts_file
@@ -25,7 +26,7 @@ def create_fact(root_dir: str, fact_text: str, incl: list[str], skip: list[str] 
     Args:
         root_dir: Project root directory
         fact_text: Human-readable fact description
-        incl: List of inclusion matchers (e.g., ["g:lore/globs/**/*.py"])
+        incl: List of inclusion matchers (e.g., ["p:lore/globs/**/*.py"])
         skip: Optional list of exclusion matchers
         fact_id: Optional explicit ID (auto-generated if not provided)
 
@@ -107,8 +108,14 @@ def create_fact(root_dir: str, fact_text: str, incl: list[str], skip: list[str] 
     existing[fact_id] = local_fact
     save_facts_file(target_file, existing)
 
-    return globalize_fact_matchers({
+    rel_dir = compute_rel_dir(target_file, root_dir)
+    globalized = merge_fact_tree_to_global_matchers([{
+        "rel_dir": rel_dir,
+        "facts": {fact_id: local_fact},
+    }])
+
+    return {
         "fact_id": fact_id,
         "file_path": target_file,
-        "fact": local_fact,
-    }, root_dir)
+        **globalized[fact_id],
+    }

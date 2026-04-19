@@ -1,104 +1,99 @@
-from lore.facts.compile_fact_matchers import compile_fact_matchers
+from lore.store.build_fact_from_dict import build_fact_from_dict
 from lore.facts.find_matching_facts import find_matching_facts
 
 
 class TestFindMatchingFacts:
     def test_single_matching_fact(self):
-        compiled = {
-            "f1": compile_fact_matchers({"fact": "JS", "incl": ["g:**/*.js"]}),
-            "f2": compile_fact_matchers({"fact": "TS", "incl": ["g:**/*.ts"]}),
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "JS", "incl": ["p:**/*.js"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "TS", "incl": ["p:**/*.ts"]}),
         }
 
-        result = find_matching_facts(compiled, "src/app.js")
+        result = find_matching_facts(facts, "src/app.js")
         assert result == ["f1"]
 
     def test_multiple_matching_facts(self):
-        compiled = {
-            "f1": compile_fact_matchers({"fact": "All source", "incl": ["g:src/**/*"]}),
-            "f2": compile_fact_matchers({"fact": "JS files", "incl": ["g:**/*.js"]}),
-            "f3": compile_fact_matchers({"fact": "TS files", "incl": ["g:**/*.ts"]}),
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "All source", "incl": ["p:src/**/*"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "JS files", "incl": ["p:**/*.js"]}),
+            "f3": build_fact_from_dict("f3", {"fact": "TS files", "incl": ["p:**/*.ts"]}),
         }
 
-        result = find_matching_facts(compiled, "src/app.js")
+        result = find_matching_facts(facts, "src/app.js")
         assert "f1" in result
         assert "f2" in result
         assert "f3" not in result
 
     def test_no_matching_facts(self):
-        compiled = {
-            "f1": compile_fact_matchers({"fact": "JS", "incl": ["g:**/*.js"]}),
-            "f2": compile_fact_matchers({"fact": "TS", "incl": ["g:**/*.ts"]}),
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "JS", "incl": ["p:**/*.js"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "TS", "incl": ["p:**/*.ts"]}),
         }
 
-        result = find_matching_facts(compiled, "src/app.py")
+        result = find_matching_facts(facts, "src/app.py")
         assert result == []
 
-    def test_empty_compiled_facts(self):
+    def test_empty_facts(self):
         result = find_matching_facts({}, "src/app.js")
         assert result == []
 
     def test_exclusions_respected(self):
-        compiled = {
-            "f1": compile_fact_matchers({
+        facts = {
+            "f1": build_fact_from_dict("f1", {
                 "fact": "JS except vendor",
-                "incl": ["g:**/*.js"],
-                "skip": ["g:vendor/**"],  # exclude from root
+                "incl": ["p:**/*.js"],
+                "skip": ["p:vendor/**"],
             }),
         }
 
-        assert find_matching_facts(compiled, "src/app.js") == ["f1"]
-        assert find_matching_facts(compiled, "vendor/lib.js") == []
+        assert find_matching_facts(facts, "src/app.js") == ["f1"]
+        assert find_matching_facts(facts, "vendor/lib.js") == []
 
     def test_facts_evaluated_independently(self):
-        # Two facts with different exclusions
-        compiled = {
-            "f1": compile_fact_matchers({
+        facts = {
+            "f1": build_fact_from_dict("f1", {
                 "fact": "JS except vendor",
-                "incl": ["g:**/*.js"],
-                "skip": ["g:vendor/**"],  # exclude from root
+                "incl": ["p:**/*.js"],
+                "skip": ["p:vendor/**"],
             }),
-            "f2": compile_fact_matchers({
+            "f2": build_fact_from_dict("f2", {
                 "fact": "JS except node_modules",
-                "incl": ["g:**/*.js"],
-                "skip": ["g:node_modules/**"],  # exclude from root
+                "incl": ["p:**/*.js"],
+                "skip": ["p:node_modules/**"],
             }),
         }
 
-        # vendor/lib.js matches f2 but not f1
-        result = find_matching_facts(compiled, "vendor/lib.js")
+        result = find_matching_facts(facts, "vendor/lib.js")
         assert result == ["f2"]
 
-        # node_modules/pkg.js matches f1 but not f2
-        result = find_matching_facts(compiled, "node_modules/pkg.js")
+        result = find_matching_facts(facts, "node_modules/pkg.js")
         assert result == ["f1"]
 
     def test_content_filtering(self):
-        compiled = {
-            "f1": compile_fact_matchers({
+        facts = {
+            "f1": build_fact_from_dict("f1", {
                 "fact": "PY with raise",
-                "incl": ["g:**/*.py", "r:raise\\s+"],
+                "incl": ["p:**/*.py", "c:raise\\s+"],
             }),
-            "f2": compile_fact_matchers({
+            "f2": build_fact_from_dict("f2", {
                 "fact": "All PY",
-                "incl": ["g:**/*.py"],
+                "incl": ["p:**/*.py"],
             }),
         }
 
-        # With matching content: both match
-        result = find_matching_facts(compiled, "src/app.py", content="raise ValueError")
+        result = find_matching_facts(facts, "src/app.py", content="raise ValueError")
         assert "f1" in result
         assert "f2" in result
 
-        # With non-matching content: only glob-only fact matches
-        result = find_matching_facts(compiled, "src/app.py", content="return 42")
+        result = find_matching_facts(facts, "src/app.py", content="return 42")
         assert "f1" not in result
         assert "f2" in result
 
     def test_directory_path(self):
-        compiled = {
-            "f1": compile_fact_matchers({"fact": "Src dirs", "incl": ["g:src/**/"]}),
-            "f2": compile_fact_matchers({"fact": "All files", "incl": ["g:**/*"]}),
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "Src dirs", "incl": ["p:src/**/"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "All files", "incl": ["p:**/*"]}),
         }
 
-        result = find_matching_facts(compiled, "src/api/")
+        result = find_matching_facts(facts, "src/api/")
         assert "f1" in result

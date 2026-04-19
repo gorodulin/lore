@@ -7,18 +7,18 @@ rules:
   all-js:
     fact: "All JavaScript files"
     incl:
-      - "g:**/*.js"
+      - "p:**/*.js"
 
   src-files:
     fact: "All files under src/"
     incl:
-      - "g:src/**/*"
+      - "p:src/**/*"
 
   test-files:
     fact: "Test files"
     incl:
-      - "g:**/*.test.js"
-      - "g:**/*.spec.js"
+      - "p:**/*.test.js"
+      - "p:**/*.spec.js"
 
 paths:
   - src/app.js

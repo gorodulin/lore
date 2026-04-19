@@ -12,8 +12,8 @@ def load_facts_file(file_path: str) -> dict[str, dict]:
     {
         "fact_id": {
             "fact": "Human-readable description",
-            "incl": ["g:pattern1", "g:pattern2"],
-            "skip": ["g:pattern3"]  // optional
+            "incl": ["p:pattern1", "p:pattern2"],
+            "skip": ["p:pattern3"]  // optional
         }
     }
 

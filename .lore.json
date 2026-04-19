@@ -1,105 +1,111 @@
 {
   "0cfDHqhfgS": {
     "fact": "Claude-specific code must live in lore/claude/**/* files. Do not introduce Claude references elsewhere.",
-    "incl": ["g:**/*.py", "r:(?i)claude"],
-    "skip": ["g:bin/handle_claude_hook", "g:lore/claude/**/*", "g:tests/claude/**/*"],
+    "incl": ["c:(?i)claude", "p:**/*.py"],
+    "skip": ["p:bin/handle_claude_hook", "p:lore/claude/**/*", "p:tests/claude/**/*"],
     "tags": ["action:block", "hook:edit", "hook:write"]
   },
   "2nJ8qK4rPs": {
     "fact": "bin/manage_facts must remain slim - only dispatch to library functions, never implement core logic",
-    "incl": ["g:bin/manage_facts"],
+    "incl": ["p:bin/manage_facts"],
     "tags": ["kind:commitment"]
   },
   "3Xy2Rce9PU": {
     "fact": "When regex patterns in '.lore.json' aren't working, first check JSON validity - a single bad escape breaks all facts in that file.",
-    "incl": ["g:**/.lore.json"]
+    "incl": ["p:**/.lore.json"]
   },
   "4pqgUQ9hVf": {
     "fact": "Don't use underscore-prefixed import aliases to avoid name collisions",
-    "incl": ["g:**/*.py", "r:import \\w+ as _"],
-    "skip": ["g:tests/**/*.py"]
+    "incl": ["c:import \\w+ as _", "p:**/*.py"],
+    "skip": ["p:tests/**/*.py"]
   },
   "4vR7sT1wHc": {
     "fact": "Edit must preserve fact ID when relocating via delete+create (identity is stable across relocation)",
-    "incl": ["g:lore/facts/edit_fact.py"],
+    "incl": ["p:lore/facts/edit_fact.py"],
     "tags": ["kind:commitment"]
   },
   "5dW6hL9vBn": {
     "fact": "Empty '.lore.json' files must be deleted automatically when last fact is removed (keep repository clean)",
-    "incl": ["g:lore/facts/delete_fact.py"],
+    "incl": ["p:lore/facts/delete_fact.py"],
     "tags": ["kind:behavior"]
   },
   "9bX3cY5zFm": {
     "fact": "{{filepath}}: Skip patterns must be validated for scope at creation and edit time (before relativization) to warn of orphaned exclusions",
-    "incl": ["g:lore/facts/create_fact.py", "g:lore/facts/edit_fact.py", "g:lore/validation/validate_skip_matchers_scope.py"],
+    "incl": ["p:lore/facts/create_fact.py", "p:lore/facts/edit_fact.py", "p:lore/validation/validate_skip_matchers_scope.py"],
     "tags": ["kind:design"]
   },
   "AeJ1d9FDcV": {
     "fact": "bin/ wrappers and [project.scripts] in pyproject.toml register the same four entry points. Keep in sync.",
-    "incl": ["g:bin/*", "g:pyproject.toml"]
+    "incl": ["p:bin/*", "p:pyproject.toml"]
   },
   "FTjtMYvgHH": {
     "fact": "After bumping the version here, update the version pin in lore-claude: edit LORE_VERSION, bump plugin.json and marketplace.json versions, then push. See lore-claude/RELEASING.md.",
-    "incl": ["g:pyproject.toml", "r:version"],
+    "incl": ["c:version", "p:pyproject.toml"],
     "tags": ["kind:convention"]
   },
   "HG3F0cVxEW": {
     "fact": "Prefer triple-quoted strings or module-level constants over implicit string concatenation for multiline text",
-    "incl": ["g:**/*.py", "r:(?m)^\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n"],
-    "skip": ["g:tests/**/*.py"]
+    "incl": ["c:(?m)^\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n", "p:**/*.py"],
+    "skip": ["p:tests/**/*.py"]
+  },
+  "ICZss22RQP": {
+    "fact": "Prefix strings (g:…, r:…) are a serialization detail owned by store/. Code here should work with typed Fact/MatcherSet fields instead.",
+    "incl": ["c:from lore\\.store\\..*matcher_string.* import", "p:**/*.py"],
+    "skip": ["p:store/**"],
+    "tags": ["kind:convention"]
   },
   "Kb2CxQd0q0": {
     "fact": "Add a blank line before the first item of every list",
-    "incl": ["g:**/*.md", "r:^[^\\d*-].*\\n(\\d+\\. |[-*] )"]
+    "incl": ["c:^[^\\d*-].*\\n(\\d+\\. |[-*] )", "p:**/*.md"]
   },
   "KdqpRCKdpQ": {
     "fact": "Prefer one-liner method signatures. Keep `def name(...)...:` on a single line even when long",
-    "incl": ["g:**/*.py", "r:^\\s*def \\w+\\([^)]*$"],
+    "incl": ["c:^\\s*def \\w+\\([^)]*$", "p:**/*.py"],
     "tags": ["hook:edit", "hook:read", "hook:write"]
   },
   "MQhW6NJigm": {
     "fact": "from ... import must not use ()-brackets for a single imported item. Long lines are fine",
-    "incl": ["g:**/*.py", "r:from lore.* import \\("]
+    "incl": ["c:from lore.* import \\(", "p:**/*.py"]
   },
   "cmPSw1cDRE": {
     "fact": "Never import and use Path, prefer 'os' functions instead",
-    "incl": ["g:**/*.py", "r:import Path"],
-    "skip": ["g:tests/**/*.py"],
+    "incl": ["c:import Path", "p:**/*.py"],
+    "skip": ["p:tests/**/*.py"],
     "tags": ["action:block", "kind:commitment"]
   },
   "e7CcEhT2UW": {
     "fact": "We don't allow nested function definitions. Local helper/organizational methods should start with \"_\"",
-    "incl": ["g:**/*.py", "g:lore/facts/render_fact_text.py", "r:^ +def [_a-z]+"],
-    "skip": ["g:tests/**/*.py"]
+    "incl": ["c:^ +def [_a-z]+", "p:**/*.py", "p:lore/facts/render_fact_text.py"],
+    "skip": ["p:tests/**/*.py"]
   },
   "ejn7IjQtBy": {
     "fact": "\"_\"-prefixed helpers should be turned to separate functions if they are clearly reusable or deserve a dedicated unit test",
-    "incl": ["g:**/*.py", "r:def _"],
+    "incl": ["c:def _", "p:**/*.py"],
     "tags": ["hook:edit", "hook:write"]
   },
   "j3HEX0LABD": {
     "fact": "{{filepath}} stores per-directory-tree fact definitions with glob-based matchers",
-    "incl": ["g:**/.lore.json"],
+    "incl": ["p:**/.lore.json"],
     "tags": ["hook:read"]
   },
   "j9eMq0lynU": {
     "fact": "Never edit '.lore.json' files directly - use lore MCP tools or 'lore' command instead.",
-    "incl": ["g:**/.lore.json"],
+    "incl": ["p:**/.lore.json"],
     "tags": ["action:block", "hook:edit", "hook:write"]
   },
   "qVgRJ2WPPG": {
     "fact": "All MCP-specific code should reside in lore/mcp/**/*",
-    "incl": ["g:**/*.py", "r:mcp|MCP"],
-    "skip": ["g:lore/mcp/**/*"]
+    "incl": ["c:mcp|MCP", "p:**/*.py"],
+    "skip": ["p:lore/mcp/**/*"]
   },
   "suifSUyCun": {
     "fact": "We prefer \" - \" over \" — \"",
-    "incl": ["g:**/*.md", "r:—"],
+    "incl": ["c:—", "p:**/*.md"],
     "tags": ["action:block", "hook:edit", "hook:write"]
   },
   "z03aNxcFBG": {
     "fact": "We never import _-helpers from other files. Consider extracting a shared utility function",
-    "incl": ["g:**/*.py", "r:import _"],
+    "incl": ["c:import _", "p:**/*.py"],
     "tags": ["action:block"]
   }
 }

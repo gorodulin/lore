@@ -8,7 +8,7 @@ from lore.facts.delete_fact import delete_fact
 from lore.facts.locate_fact_by_id import locate_fact_by_id
 from lore.store.load_facts_file import load_facts_file
 from lore.store.save_facts_file import save_facts_file
-from lore.validation.validate_fact_structure import validate_fact_structure
+from lore.store.validate_fact_structure import validate_fact_structure
 from lore.validation.validate_skip_matchers_scope import validate_skip_matchers_scope
 
 
@@ -22,7 +22,7 @@ def edit_fact(root_dir: str, fact_id: str, *, fact_text: str | None = None, incl
     The operation is atomic: if creation of the replacement fact fails,
     the original fact is restored from a captured snapshot.
 
-    Patterns are expected in project-root format (e.g., "g:src/api/**/*.ts").
+    Patterns are expected in project-root format (e.g., "p:src/api/**/*.ts").
     They will be relativized and stored in the appropriate .lore.json file
     based on their common directory prefix.
 

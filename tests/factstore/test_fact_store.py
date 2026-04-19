@@ -8,8 +8,8 @@ from lore.factstore.fact_store import FactStore
 
 def test_load_all_facts_populates_store(tmp_path):
     facts = {
-        "f1": {"fact": "Python files", "incl": ["g:**/*.py"]},
-        "f2": {"fact": "JS files", "incl": ["g:**/*.js"]},
+        "f1": {"fact": "Python files", "incl": ["p:**/*.py"]},
+        "f2": {"fact": "JS files", "incl": ["p:**/*.js"]},
     }
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
@@ -25,17 +25,17 @@ def test_find_matching_facts_filters_by_tags(tmp_path):
     facts = {
         "read-only": {
             "fact": "Read hook fact",
-            "incl": ["g:**/*.py"],
+            "incl": ["p:**/*.py"],
             "tags": ["hook:read"],
         },
         "write-only": {
             "fact": "Write hook fact",
-            "incl": ["g:**/*.py"],
+            "incl": ["p:**/*.py"],
             "tags": ["hook:write"],
         },
         "untagged": {
             "fact": "No hook tags",
-            "incl": ["g:**/*.py"],
+            "incl": ["p:**/*.py"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
@@ -53,7 +53,7 @@ def test_find_matching_facts_with_content(tmp_path):
     facts = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
@@ -69,7 +69,7 @@ def test_find_matching_facts_with_content(tmp_path):
 
 
 def test_refresh_facts_detects_mtime_change(tmp_path):
-    facts = {"f1": {"fact": "Original", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Original", "incl": ["p:**/*.py"]}}
     facts_file = tmp_path / ".lore.json"
     facts_file.write_text(json.dumps(facts))
 
@@ -79,7 +79,7 @@ def test_refresh_facts_detects_mtime_change(tmp_path):
     assert store.find_matching_facts("x.py")["f1"]["fact"] == "Original"
 
     time.sleep(0.05)
-    updated = {"f1": {"fact": "Updated", "incl": ["g:**/*.py"]}}
+    updated = {"f1": {"fact": "Updated", "incl": ["p:**/*.py"]}}
     facts_file.write_text(json.dumps(updated))
 
     result = store.find_matching_facts("x.py")
@@ -87,7 +87,7 @@ def test_refresh_facts_detects_mtime_change(tmp_path):
 
 
 def test_refresh_facts_detects_new_file(tmp_path):
-    facts = {"f1": {"fact": "Root fact", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Root fact", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
     store = FactStore(str(tmp_path))
@@ -95,7 +95,7 @@ def test_refresh_facts_detects_new_file(tmp_path):
 
     sub = tmp_path / "sub"
     sub.mkdir()
-    sub_facts = {"f2": {"fact": "Sub fact", "incl": ["g:**/*.py"]}}
+    sub_facts = {"f2": {"fact": "Sub fact", "incl": ["p:**/*.py"]}}
     (sub / ".lore.json").write_text(json.dumps(sub_facts))
 
     result = store.find_matching_facts("sub/thing.py")
@@ -107,7 +107,7 @@ def test_refresh_facts_detects_removed_file(tmp_path):
     sub = tmp_path / "sub"
     sub.mkdir()
     (sub / ".lore.json").write_text(json.dumps({
-        "f1": {"fact": "Sub fact", "incl": ["g:**/*.py"]},
+        "f1": {"fact": "Sub fact", "incl": ["p:**/*.py"]},
     }))
 
     store = FactStore(str(tmp_path))
@@ -124,7 +124,7 @@ def test_create_fact_updates_store(tmp_path):
     store = FactStore(str(tmp_path))
     store.load_all_facts()
 
-    result = store.create_fact("New fact", ["g:**/*.ts"])
+    result = store.create_fact("New fact", ["p:**/*.ts"])
     fid = result["fact_id"]
 
     assert store.get_fact(fid) is not None
@@ -132,20 +132,20 @@ def test_create_fact_updates_store(tmp_path):
 
 
 def test_edit_fact_handles_relocation(tmp_path):
-    facts = {"f1": {"fact": "Root fact", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Root fact", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
     store = FactStore(str(tmp_path))
     store.load_all_facts()
 
-    store.edit_fact("f1", incl=["g:lib/**/*.py"])
+    store.edit_fact("f1", incl=["p:lib/**/*.py"])
 
     assert "f1" not in store.find_matching_facts("src/app.py")
     assert "f1" in store.find_matching_facts("lib/util.py")
 
 
 def test_delete_fact_updates_store(tmp_path):
-    facts = {"f1": {"fact": "Doomed", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Doomed", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
     store = FactStore(str(tmp_path))
@@ -159,7 +159,7 @@ def test_delete_fact_updates_store(tmp_path):
 
 
 def test_validate_all_facts(tmp_path):
-    facts = {"f1": {"fact": "Valid", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Valid", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(facts))
 
     store = FactStore(str(tmp_path))

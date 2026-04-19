@@ -55,7 +55,7 @@ def test_connection_error():
 
 
 def test_find_facts_round_trip(tmp_path):
-    facts = {"f1": {"fact": "Python", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Python", "incl": ["p:**/*.py"]}}
 
     async def _test_async(socket_path, project_root):
         return await send_fact_request_async(socket_path, "find_facts", {"file_path": "src/app.py"}, 5.0, project_root=project_root)

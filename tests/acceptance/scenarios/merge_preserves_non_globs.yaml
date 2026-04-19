@@ -9,15 +9,15 @@ tree:
       mixed-matchers:
         fact: "Mix of matcher types"
         incl:
-          - "g:**/*.js" # glob - will be prefixed
-          - "r:.*\\.test\\.js$" # regex - unchanged
+          - "p:**/*.js" # glob - will be prefixed
+          - "c:.*\\.test\\.js$" # regex - unchanged
         skip:
-          - "g:vendor/**" # glob - will be prefixed
+          - "p:vendor/**" # glob - will be prefixed
 
 expected_merged:
   mixed-matchers:
     incl:
-      - "g:src/**/*.js"
-      - "r:.*\\.test\\.js$"
+      - "p:src/**/*.js"
+      - "c:.*\\.test\\.js$"
     skip:
-      - "g:src/vendor/**"
+      - "p:src/vendor/**"

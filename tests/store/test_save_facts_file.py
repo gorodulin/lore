@@ -9,7 +9,7 @@ from tests.test_helpers.build_test_fact_set import build_test_fact_set
 
 def test_save_basic(tmp_path):
     rules_file = tmp_path / ".lore.json"
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     ruleset = {"f1": fact}
 
     save_facts_file(str(rules_file), ruleset)
@@ -22,8 +22,8 @@ def test_save_basic(tmp_path):
 def test_save_deterministic_output(tmp_path):
     rules_file = tmp_path / ".lore.json"
     ruleset = build_test_fact_set(
-        build_test_fact(fact_id="b_fact", incl=["g:**/*.py"]),
-        build_test_fact(fact_id="a_fact", incl=["g:**/*.js"]),
+        build_test_fact(fact_id="b_fact", incl=["p:**/*.py"]),
+        build_test_fact(fact_id="a_fact", incl=["p:**/*.js"]),
     )
 
     save_facts_file(str(rules_file), ruleset)
@@ -39,7 +39,7 @@ def test_save_deterministic_output(tmp_path):
 
 def test_save_creates_parent_dirs(tmp_path):
     rules_file = tmp_path / "deep" / "nested" / ".lore.json"
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
 
     save_facts_file(str(rules_file), {"f1": fact})
 
@@ -50,8 +50,8 @@ def test_save_creates_parent_dirs(tmp_path):
 
 def test_save_overwrites_existing(tmp_path):
     rules_file = tmp_path / ".lore.json"
-    _, fact1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
-    _, fact2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, fact1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
+    _, fact2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
 
     save_facts_file(str(rules_file), {"f1": fact1})
     save_facts_file(str(rules_file), {"f2": fact2})
@@ -64,7 +64,7 @@ def test_save_overwrites_existing(tmp_path):
 def test_save_validates_facts(tmp_path):
     rules_file = tmp_path / ".lore.json"
     # Missing 'fact' field
-    bad_ruleset = {"f1": {"incl": ["g:**/*.py"]}}
+    bad_ruleset = {"f1": {"incl": ["p:**/*.py"]}}
 
     with pytest.raises(ValueError, match="Invalid facts"):
         save_facts_file(str(rules_file), bad_ruleset)
@@ -83,7 +83,7 @@ def test_save_empty_ruleset(tmp_path):
 
 def test_save_unicode_content(tmp_path):
     rules_file = tmp_path / ".lore.json"
-    _, fact = build_test_fact(fact_id="f1", fact_text="日本語テスト", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", fact_text="日本語テスト", incl=["p:**/*.py"])
 
     save_facts_file(str(rules_file), {"f1": fact})
 

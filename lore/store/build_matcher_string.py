@@ -1,4 +1,4 @@
-from lore.facts.parse_matcher_string import VALID_PREFIXES
+from lore.store.parse_matcher_string import VALID_PREFIXES
 
 _TYPE_TO_PREFIX = {v: k for k, v in VALID_PREFIXES.items()}
 
@@ -13,16 +13,16 @@ def build_matcher_string(matcher_type: str, value: str) -> str:
         value: Raw pattern value (e.g., "**/*.py")
 
     Returns:
-        Prefixed matcher string (e.g., "g:**/*.py")
+        Prefixed matcher string (e.g., "p:**/*.py")
 
     Raises:
         ValueError: If matcher_type is unknown
 
     Examples:
         >>> build_matcher_string("glob", "**/*.py")
-        'g:**/*.py'
+        'p:**/*.py'
         >>> build_matcher_string("regex", "import os")
-        'r:import os'
+        'c:import os'
     """
     prefix = _TYPE_TO_PREFIX.get(matcher_type)
     if prefix is None:

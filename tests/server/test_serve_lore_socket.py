@@ -54,7 +54,7 @@ async def test_ping_round_trip(tmp_path):
 
 @pytest.mark.asyncio
 async def test_find_facts_round_trip(tmp_path):
-    facts = {"f1": {"fact": "Python", "incl": ["g:**/*.py"]}}
+    facts = {"f1": {"fact": "Python", "incl": ["p:**/*.py"]}}
     task, socket_path, root = await _start_server(tmp_path, facts)
     try:
         req_id, result, error = await _send_request(
@@ -128,8 +128,8 @@ async def test_multi_project_round_trip(tmp_path):
     root_b = tmp_path / "b"
     root_a.mkdir()
     root_b.mkdir()
-    (root_a / ".lore.json").write_text(json.dumps({"fa": {"fact": "From A", "incl": ["g:**/*.py"]}}))
-    (root_b / ".lore.json").write_text(json.dumps({"fb": {"fact": "From B", "incl": ["g:**/*.py"]}}))
+    (root_a / ".lore.json").write_text(json.dumps({"fa": {"fact": "From A", "incl": ["p:**/*.py"]}}))
+    (root_b / ".lore.json").write_text(json.dumps({"fb": {"fact": "From B", "incl": ["p:**/*.py"]}}))
 
     socket_path = os.path.join(tempfile.mkdtemp(), "fp.sock")
     task = asyncio.create_task(serve_lore_socket({}, socket_path))

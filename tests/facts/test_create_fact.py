@@ -9,7 +9,7 @@ def test_create_basic(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:**/*.py"],
+        ["p:**/*.py"],
         fact_id="test1",
     )
 
@@ -19,7 +19,7 @@ def test_create_basic(tmp_path):
 
 
 def test_create_auto_id(tmp_path):
-    result = create_fact(str(tmp_path), "Test fact", ["g:**/*.py"])
+    result = create_fact(str(tmp_path), "Test fact", ["p:**/*.py"])
 
     assert len(result["fact_id"]) == 10
     assert result["fact"] == "Test fact"
@@ -30,7 +30,7 @@ def test_create_auto_placement(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Glob module fact",
-        ["g:lore/globs/**/*.py"],
+        ["p:lore/globs/**/*.py"],
         fact_id="test1",
     )
 
@@ -38,14 +38,14 @@ def test_create_auto_placement(tmp_path):
     assert result["file_path"] == expected_file
 
     # Pattern should be global (project-root-relative)
-    assert result["incl"] == ["g:lore/globs/**/*.py"]
+    assert result["incl"] == ["p:lore/globs/**/*.py"]
 
 
 def test_create_auto_placement_multiple_patterns(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Lore module fact",
-        ["g:lore/globs/**/*.py", "g:lore/rules/**/*.py"],
+        ["p:lore/globs/**/*.py", "p:lore/rules/**/*.py"],
         fact_id="test1",
     )
 
@@ -53,20 +53,20 @@ def test_create_auto_placement_multiple_patterns(tmp_path):
     assert result["file_path"] == expected_file
 
     # Patterns should be global (project-root-relative)
-    assert result["incl"] == ["g:lore/globs/**/*.py", "g:lore/rules/**/*.py"]
+    assert result["incl"] == ["p:lore/globs/**/*.py", "p:lore/rules/**/*.py"]
 
 
 def test_create_with_skip(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:src/**/*.py"],
-        ["g:src/vendor/**"],
+        ["p:src/**/*.py"],
+        ["p:src/vendor/**"],
         fact_id="test1",
     )
 
     assert "skip" in result
-    assert result["skip"] == ["g:src/vendor/**"]
+    assert result["skip"] == ["p:src/vendor/**"]
 
 
 def test_create_root_level_patterns(tmp_path):
@@ -74,21 +74,21 @@ def test_create_root_level_patterns(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:**/*.py"],
+        ["p:**/*.py"],
         fact_id="test1",
     )
 
     expected_file = os.path.join(str(tmp_path), ".lore.json")
     assert result["file_path"] == expected_file
-    assert result["incl"] == ["g:**/*.py"]
+    assert result["incl"] == ["p:**/*.py"]
 
 
 def test_create_appends_to_existing(tmp_path):
     # Create first fact
-    create_fact(str(tmp_path), "First", ["g:**/*.py"], fact_id="f1")
+    create_fact(str(tmp_path), "First", ["p:**/*.py"], fact_id="f1")
 
     # Create second fact in same location
-    create_fact(str(tmp_path), "Second", ["g:**/*.js"], fact_id="f2")
+    create_fact(str(tmp_path), "Second", ["p:**/*.js"], fact_id="f2")
 
     rules_file = os.path.join(str(tmp_path), ".lore.json")
     loaded = load_facts_file(rules_file)
@@ -97,10 +97,10 @@ def test_create_appends_to_existing(tmp_path):
 
 
 def test_create_duplicate_id_raises(tmp_path):
-    create_fact(str(tmp_path), "First", ["g:**/*.py"], fact_id="dup1")
+    create_fact(str(tmp_path), "First", ["p:**/*.py"], fact_id="dup1")
 
     with pytest.raises(ValueError, match="already exists"):
-        create_fact(str(tmp_path), "Second", ["g:**/*.js"], fact_id="dup1")
+        create_fact(str(tmp_path), "Second", ["p:**/*.js"], fact_id="dup1")
 
 
 def test_create_invalid_fact_raises(tmp_path):
@@ -112,7 +112,7 @@ def test_create_with_tags(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:**/*.py"],
+        ["p:**/*.py"],
         fact_id="test1",
         tags=["hook:read", "kind:convention"],
     )
@@ -124,7 +124,7 @@ def test_create_without_tags(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:**/*.py"],
+        ["p:**/*.py"],
         fact_id="test1",
     )
 
@@ -135,7 +135,7 @@ def test_create_tags_persisted(tmp_path):
     create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:**/*.py"],
+        ["p:**/*.py"],
         fact_id="test1",
         tags=["hook:edit"],
     )
@@ -149,11 +149,11 @@ def test_create_non_relativizable_skip(tmp_path):
     result = create_fact(
         str(tmp_path),
         "Test fact",
-        ["g:src/**/*.py"],
-        ["g:**/*.min.py"],
+        ["p:src/**/*.py"],
+        ["p:**/*.min.py"],
         fact_id="test1",
     )
 
     # Both incl and skip are returned as global (project-root-relative)
-    assert result["incl"] == ["g:src/**/*.py"]
-    assert result["skip"] == ["g:src/**/*.min.py"]
+    assert result["incl"] == ["p:src/**/*.py"]
+    assert result["skip"] == ["p:src/**/*.min.py"]

@@ -1,12 +1,12 @@
 {
   "McoWNQYeFZ": {
     "fact": "Scripts in {{folder}} should have execution bit and shebang. They should be executable from any working dir.",
-    "incl": ["g:*"],
-    "skip": ["r:#\\!"]
+    "incl": ["p:*"],
+    "skip": ["c:#\\!"]
   },
   "ttwM3XkQri": {
     "fact": "Scripts in {{folder}} should have no .py extension.",
-    "incl": ["g:*.py"],
+    "incl": ["p:*.py"],
     "tags": ["action:block"]
   }
 }

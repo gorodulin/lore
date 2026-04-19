@@ -1,4 +1,4 @@
-from lore.facts.parse_matcher_string import parse_matcher_string
+from lore.store.parse_matcher_string import parse_matcher_string
 from lore.globs.compile_glob_pattern import compile_glob_pattern
 from lore.globs.extract_glob_fixed_prefix import extract_glob_fixed_prefix
 
@@ -15,14 +15,14 @@ def find_subset_patterns(matchers: list[str]) -> list[tuple[str, str]]:
     but won't report false positives.
 
     Args:
-        matchers: List of matchers to check (with prefixes like 'g:')
+        matchers: List of matchers to check (with prefixes like 'p:')
 
     Returns:
         List of (subset, superset) tuples indicating subset relationships.
 
     Example:
-        >>> find_subset_patterns(['g:src/**/*.js', 'g:**/*.js'])
-        [('g:src/**/*.js', 'g:**/*.js')]
+        >>> find_subset_patterns(['p:src/**/*.js', 'p:**/*.js'])
+        [('p:src/**/*.js', 'p:**/*.js')]
     """
     # Extract glob patterns with their compiled info
     globs = []

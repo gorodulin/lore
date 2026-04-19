@@ -1,16 +1,16 @@
 {
   "OURjUp2488": {
     "fact": "Reusable helper methods for tests reside in tests/test_helpers/ - one method per file.",
-    "incl": ["g:**/*.py"],
-    "skip": ["g:acceptance/**/*", "g:test_helpers/**/*"]
+    "incl": ["p:**/*.py"],
+    "skip": ["p:acceptance/**/*", "p:test_helpers/**/*"]
   },
   "eBNI3MZqjj": {
     "fact": "Use pytest fixtures (tmp_path, monkeypatch) and real failures, not unittest.mock",
-    "incl": ["g:**/*.py", "r:unittest\\.mock"]
+    "incl": ["c:unittest\\.mock", "p:**/*.py"]
   },
   "rAQOGeyvrT": {
     "fact": "Each file in {{folder}} should cover one corresponding .py file (unless it is an acceptance test)",
-    "incl": ["g:**/*.py"],
-    "skip": ["g:acceptance/**/*", "g:test_helpers/**/*"]
+    "incl": ["p:**/*.py"],
+    "skip": ["p:acceptance/**/*", "p:test_helpers/**/*"]
   }
 }

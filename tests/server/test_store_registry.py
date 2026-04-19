@@ -5,7 +5,7 @@ from lore.server.store_registry import get_or_build_store, evict_idle_stores
 
 
 def test_get_or_build_store_creates_on_first_access(tmp_path):
-    (tmp_path / ".lore.json").write_text(json.dumps({"f1": {"fact": "Py", "incl": ["g:**/*.py"]}}))
+    (tmp_path / ".lore.json").write_text(json.dumps({"f1": {"fact": "Py", "incl": ["p:**/*.py"]}}))
     stores = {}
     store = get_or_build_store(stores, str(tmp_path))
     assert store.get_fact("f1") is not None

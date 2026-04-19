@@ -13,8 +13,8 @@ def validate_skip_matchers_scope(incl: list[str], skip: list[str]) -> list[tuple
     any paths that incl would match.
 
     Args:
-        incl: List of inclusion patterns in project-root format (e.g., ["g:src/api/**/*.ts"])
-        skip: List of skip patterns in project-root format (e.g., ["g:vendor/**"])
+        incl: List of inclusion patterns in project-root format (e.g., ["p:src/api/**/*.ts"])
+        skip: List of skip patterns in project-root format (e.g., ["p:vendor/**"])
 
     Returns:
         List of (skip_pattern, reason) tuples for patterns out of scope.
@@ -22,10 +22,10 @@ def validate_skip_matchers_scope(incl: list[str], skip: list[str]) -> list[tuple
 
     Example:
         >>> validate_skip_matchers_scope(
-        ...     incl=["g:src/api/**/*.ts"],
-        ...     skip=["g:vendor/**", "g:src/**/*.test.ts"]
+        ...     incl=["p:src/api/**/*.ts"],
+        ...     skip=["p:vendor/**", "p:src/**/*.test.ts"]
         ... )
-        [("g:vendor/**", "does not overlap with any inclusion pattern")]
+        [("p:vendor/**", "does not overlap with any inclusion pattern")]
     """
     if not skip:
         return []

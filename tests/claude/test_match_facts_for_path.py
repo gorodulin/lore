@@ -7,11 +7,11 @@ def test_returns_matching_facts_with_dicts(tmp_path):
     rules = {
         "api-handlers": {
             "fact": "This module handles API routing",
-            "incl": ["g:src/api/**/*.ts"],
+            "incl": ["p:src/api/**/*.ts"],
         },
         "db-layer": {
             "fact": "Database layer",
-            "incl": ["g:src/db/**/*.ts"],
+            "incl": ["p:src/db/**/*.ts"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -34,7 +34,7 @@ def test_invalid_root_returns_empty():
 
 
 def test_file_outside_project_returns_empty(tmp_path):
-    rules = {"a": {"fact": "A", "incl": ["g:**/*.ts"]}}
+    rules = {"a": {"fact": "A", "incl": ["p:**/*.ts"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     result = match_facts_for_path(str(tmp_path), "/outside/project/foo.ts")
@@ -42,7 +42,7 @@ def test_file_outside_project_returns_empty(tmp_path):
 
 
 def test_relative_path(tmp_path):
-    rules = {"js": {"fact": "JavaScript files", "incl": ["g:**/*.js"]}}
+    rules = {"js": {"fact": "JavaScript files", "incl": ["p:**/*.js"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     result = match_facts_for_path(str(tmp_path), "lib/utils.js")
@@ -50,7 +50,7 @@ def test_relative_path(tmp_path):
 
 
 def test_absolute_path_within_project(tmp_path):
-    rules = {"py": {"fact": "Python files", "incl": ["g:**/*.py"]}}
+    rules = {"py": {"fact": "Python files", "incl": ["p:**/*.py"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     abs_path = str(tmp_path / "src" / "main.py")
@@ -59,7 +59,7 @@ def test_absolute_path_within_project(tmp_path):
 
 
 def test_no_matches_returns_empty(tmp_path):
-    rules = {"ts": {"fact": "TypeScript", "incl": ["g:**/*.ts"]}}
+    rules = {"ts": {"fact": "TypeScript", "incl": ["p:**/*.ts"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     result = match_facts_for_path(str(tmp_path), "readme.md")
@@ -70,7 +70,7 @@ def test_regex_matcher_with_content(tmp_path):
     rules = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -92,7 +92,7 @@ def test_tags_in_returned_dict(tmp_path):
     rules = {
         "tagged": {
             "fact": "Tagged fact",
-            "incl": ["g:**/*.py"],
+            "incl": ["p:**/*.py"],
             "tags": ["hook:read", "kind:convention"],
         },
     }

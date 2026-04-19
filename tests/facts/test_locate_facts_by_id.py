@@ -5,7 +5,7 @@ from tests.test_helpers.build_test_fact import build_test_fact
 
 
 def test_find_single_id(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": fact}))
 
     result = locate_facts_by_id(str(tmp_path), {"f1"})
@@ -14,8 +14,8 @@ def test_find_single_id(tmp_path):
 
 
 def test_find_multiple_ids_single_file(tmp_path):
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
-    _, f2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
+    _, f2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1, "f2": f2}))
 
     result = locate_facts_by_id(str(tmp_path), {"f1", "f2"})
@@ -25,12 +25,12 @@ def test_find_multiple_ids_single_file(tmp_path):
 
 
 def test_find_multiple_ids_across_files(tmp_path):
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1}))
 
     sub = tmp_path / "sub"
     sub.mkdir()
-    _, f2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, f2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
     (sub / ".lore.json").write_text(json.dumps({"f2": f2}))
 
     result = locate_facts_by_id(str(tmp_path), {"f1", "f2"})
@@ -40,7 +40,7 @@ def test_find_multiple_ids_across_files(tmp_path):
 
 
 def test_partial_found(tmp_path):
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1}))
 
     result = locate_facts_by_id(str(tmp_path), {"f1", "missing"})
@@ -50,7 +50,7 @@ def test_partial_found(tmp_path):
 
 
 def test_none_found(tmp_path):
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1}))
 
     result = locate_facts_by_id(str(tmp_path), {"nonexistent"})
@@ -63,7 +63,7 @@ def test_empty_tree(tmp_path):
 
 
 def test_empty_ids(tmp_path):
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1}))
 
     result = locate_facts_by_id(str(tmp_path), set())
@@ -71,7 +71,7 @@ def test_empty_ids(tmp_path):
 
 
 def test_result_includes_file_path(tmp_path):
-    _, fact = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, fact = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": fact}))
 
     result = locate_facts_by_id(str(tmp_path), {"f1"})
@@ -80,13 +80,13 @@ def test_result_includes_file_path(tmp_path):
 
 def test_early_exit_all_found(tmp_path):
     """When all IDs are found, remaining files are not scanned."""
-    _, f1 = build_test_fact(fact_id="f1", incl=["g:**/*.py"])
+    _, f1 = build_test_fact(fact_id="f1", incl=["p:**/*.py"])
     (tmp_path / ".lore.json").write_text(json.dumps({"f1": f1}))
 
     # Create a second file that won't be reached
     sub = tmp_path / "sub"
     sub.mkdir()
-    _, f2 = build_test_fact(fact_id="f2", incl=["g:**/*.js"])
+    _, f2 = build_test_fact(fact_id="f2", incl=["p:**/*.js"])
     (sub / ".lore.json").write_text(json.dumps({"f2": f2}))
 
     # Only searching for f1 - should find it in first file and stop

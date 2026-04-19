@@ -7,28 +7,28 @@ tree:
   .lore.json:
     root-fact:
       fact: "Root level patterns"
-      incl: ["g:*.md", "g:*.txt"]
+      incl: ["p:*.md", "p:*.txt"]
 
   src:
     .lore.json:
       src-fact:
         fact: "Source patterns"
-        incl: ["g:**/*.js"]
-        skip: ["g:vendor/**"]
+        incl: ["p:**/*.js"]
+        skip: ["p:vendor/**"]
 
     api:
       .lore.json:
         api-fact:
           fact: "API patterns"
-          incl: ["g:*.ts"]
+          incl: ["p:*.ts"]
 
 expected_merged:
   root-fact:
-    incl: ["g:*.md", "g:*.txt"]
+    incl: ["p:*.md", "p:*.txt"]
 
   src-fact:
-    incl: ["g:src/**/*.js"]
-    skip: ["g:src/vendor/**"]
+    incl: ["p:src/**/*.js"]
+    skip: ["p:src/vendor/**"]
 
   api-fact:
-    incl: ["g:src/api/*.ts"]
+    incl: ["p:src/api/*.ts"]

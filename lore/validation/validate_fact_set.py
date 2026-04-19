@@ -1,4 +1,4 @@
-from lore.validation.validate_fact_structure import validate_fact_structure
+from lore.store.validate_fact_structure import validate_fact_structure
 
 
 def validate_fact_set(fact_set: dict[str, dict]) -> tuple[bool, list[dict]]:

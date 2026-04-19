@@ -1,0 +1,26 @@
+from lore.facts.matcher_set import MatcherSet
+from lore.store.build_matcher_string import build_matcher_string
+
+
+def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:
+    """Convert a typed MatcherSet back into a list of prefixed matcher strings.
+
+    Iterates fields in a fixed order (globs first, regexes second) and
+    recovers the source string from each compiled form. The output order
+    is deterministic for canonical serialization.
+
+    Args:
+        matcher_set: Typed MatcherSet with compiled matchers.
+
+    Returns:
+        List of prefixed matcher strings (e.g., ["p:**/*.py", "c:import os"]).
+    """
+    result = []
+
+    for compiled_glob in matcher_set.path_globs:
+        result.append(build_matcher_string("glob", compiled_glob["raw"]))
+
+    for compiled_regex in matcher_set.content_regexes:
+        result.append(build_matcher_string("regex", compiled_regex.pattern))
+
+    return result

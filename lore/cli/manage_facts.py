@@ -2,9 +2,9 @@
 Create, read, edit, and delete facts in .lore.json files.
 
 Usage:
-    lore create <root> --fact "text" --incl "g:pattern" [--incl ...] [--skip "g:pattern"]
+    lore create <root> --fact "text" --incl "p:pattern" [--incl ...] [--skip "p:pattern"]
     lore read   <root> <fact_id> [fact_id ...]
-    lore edit   <root> <fact_id> [--fact "text"] [--incl "g:pattern"] [--skip "g:pattern"]
+    lore edit   <root> <fact_id> [--fact "text"] [--incl "p:pattern"] [--skip "p:pattern"]
     lore delete <root> <fact_id>
     lore match  <root> <path>
     lore validate <root>

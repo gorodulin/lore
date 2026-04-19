@@ -1,5 +1,5 @@
 from lore.globs.prepend_glob_prefix import prepend_glob_prefix
-from lore.facts.transform_matchers import transform_matchers
+from lore.store.transform_matchers import transform_matchers
 
 
 def merge_fact_tree_to_global_matchers(fact_files: list[dict]) -> dict[str, dict]:

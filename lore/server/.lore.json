@@ -1,6 +1,6 @@
 {
   "O655pHeHvV": {
     "fact": "Server layer is protocol-agnostic - plain JSON over Unix socket. No imports from lore.claude, lore.mcp, or lore.cli.",
-    "incl": ["g:**/*.py"]
+    "incl": ["p:**/*.py"]
   }
 }

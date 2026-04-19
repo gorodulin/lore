@@ -7,7 +7,7 @@ def test_returns_additional_context_with_facts(tmp_path):
     rules = {
         "api-handlers": {
             "fact": "This module handles API routing",
-            "incl": ["g:src/api/**/*.ts"],
+            "incl": ["p:src/api/**/*.ts"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -40,7 +40,7 @@ def test_missing_file_path_returns_empty(tmp_path):
 
 
 def test_no_matches_returns_empty(tmp_path):
-    rules = {"ts": {"fact": "TypeScript", "incl": ["g:**/*.ts"]}}
+    rules = {"ts": {"fact": "TypeScript", "incl": ["p:**/*.ts"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     event = {
@@ -57,8 +57,8 @@ def test_no_matches_returns_empty(tmp_path):
 
 def test_format_includes_lore_header(tmp_path):
     rules = {
-        "a": {"fact": "Fact A", "incl": ["g:**/*.js"]},
-        "b": {"fact": "Fact B", "incl": ["g:**/*.js"]},
+        "a": {"fact": "Fact A", "incl": ["p:**/*.js"]},
+        "b": {"fact": "Fact B", "incl": ["p:**/*.js"]},
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
@@ -90,12 +90,12 @@ def test_hook_tag_filters_facts(tmp_path):
     rules = {
         "read-only": {
             "fact": "Read-only fact",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
             "tags": ["hook:read"],
         },
         "edit-only": {
             "fact": "Edit-only fact",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
             "tags": ["hook:edit"],
         },
     }
@@ -120,7 +120,7 @@ def test_no_hook_tags_shown_on_all_events(tmp_path):
     rules = {
         "universal": {
             "fact": "Universal fact",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -144,7 +144,7 @@ def test_read_event_with_content_regex(tmp_path):
     rules = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -173,7 +173,7 @@ def test_write_event_with_content_regex(tmp_path):
     rules = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -200,7 +200,7 @@ def test_edit_event_with_content_regex(tmp_path):
     rules = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -227,7 +227,7 @@ def test_content_regex_no_match_filters_fact(tmp_path):
     rules = {
         "raise-fact": {
             "fact": "Files with raise",
-            "incl": ["g:**/*.py", "r:raise\\s+"],
+            "incl": ["p:**/*.py", "c:raise\\s+"],
         },
     }
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
@@ -248,7 +248,7 @@ def test_content_regex_no_match_filters_fact(tmp_path):
 
 
 def test_hook_event_name_dynamic(tmp_path):
-    rules = {"a": {"fact": "Fact A", "incl": ["g:**/*.ts"]}}
+    rules = {"a": {"fact": "Fact A", "incl": ["p:**/*.ts"]}}
     (tmp_path / ".lore.json").write_text(json.dumps(rules))
 
     event = {
@@ -269,7 +269,7 @@ def test_action_block_on_pretooluse_edit_denies(tmp_path):
     rules = {
         "no-edit": {
             "fact": "Do not edit generated files",
-            "incl": ["g:**/*.gen.ts"],
+            "incl": ["p:**/*.gen.ts"],
             "tags": ["hook:edit", "action:block"],
         },
     }
@@ -296,7 +296,7 @@ def test_action_block_on_pretooluse_write_denies(tmp_path):
     rules = {
         "no-write": {
             "fact": "Do not overwrite config",
-            "incl": ["g:**/config.json"],
+            "incl": ["p:**/config.json"],
             "tags": ["hook:write", "action:block"],
         },
     }
@@ -322,7 +322,7 @@ def test_action_block_on_posttooluse_read_no_blocking(tmp_path):
     rules = {
         "blocked": {
             "fact": "Blocked fact",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
             "tags": ["action:block"],
         },
     }
@@ -353,12 +353,12 @@ def test_action_block_mixed_with_non_blocking_on_pretooluse(tmp_path):
     rules = {
         "blocker": {
             "fact": "Blocked",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
             "tags": ["hook:edit", "action:block"],
         },
         "advisor": {
             "fact": "Advisory",
-            "incl": ["g:**/*.ts"],
+            "incl": ["p:**/*.ts"],
             "tags": ["hook:edit"],
         },
     }

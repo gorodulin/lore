@@ -7,28 +7,28 @@ rules:
   has-subset:
     fact: "Has subset pattern"
     incl:
-      - "g:src/**/*.js"  # subset of **/*.js
-      - "g:**/*.js"      # superset
+      - "p:src/**/*.js"  # subset of **/*.js
+      - "p:**/*.js"      # superset
 
   chain-subset:
     fact: "Chain of subsets"
     incl:
-      - "g:src/api/**/*.js"  # most specific
-      - "g:src/**/*.js"      # middle
-      - "g:**/*.js"          # most general
+      - "p:src/api/**/*.js"  # most specific
+      - "p:src/**/*.js"      # middle
+      - "p:**/*.js"          # most general
 
   no-subset:
     fact: "No subset relationship"
     incl:
-      - "g:**/*.js"
-      - "g:**/*.ts"  # different extension, not a subset
+      - "p:**/*.js"
+      - "p:**/*.ts"  # different extension, not a subset
 
 expected_warnings:
   subsets:
     has-subset:
-      - ["g:src/**/*.js", "g:**/*.js"]
+      - ["p:src/**/*.js", "p:**/*.js"]
     chain-subset:
-      - ["g:src/api/**/*.js", "g:src/**/*.js"]
-      - ["g:src/api/**/*.js", "g:**/*.js"]
-      - ["g:src/**/*.js", "g:**/*.js"]
+      - ["p:src/api/**/*.js", "p:src/**/*.js"]
+      - ["p:src/api/**/*.js", "p:**/*.js"]
+      - ["p:src/**/*.js", "p:**/*.js"]
     no-subset: []

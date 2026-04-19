@@ -1,10 +1,12 @@
 import os
 
+from lore.facts.fact import Fact
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.load_facts_file import load_facts_file
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
+from lore.store.build_fact_from_dict import build_fact_from_dict
+from lore.store.build_dict_from_fact import build_dict_from_fact
 from lore.validation.validate_fact_set import validate_fact_set
-from lore.facts.compile_fact_matchers import compile_fact_matchers
 from lore.facts.find_matching_facts import find_matching_facts
 from lore.facts.create_fact import create_fact as create_fact_on_disk
 from lore.facts.edit_fact import edit_fact as edit_fact_on_disk
@@ -14,10 +16,11 @@ from lore.paths.resolve_relative_path import resolve_relative_path
 
 
 class FactStore:
-    """In-memory cache of compiled facts for a project.
+    """In-memory cache of typed facts for a project.
 
-    Wraps the load -> merge -> compile pipeline and keeps results
-    in memory so repeated queries avoid re-reading the filesystem.
+    Wraps the load -> merge -> validate -> build pipeline and keeps
+    typed Fact objects in memory so repeated queries avoid re-reading
+    the filesystem and re-compiling matchers.
 
     All mutations use synchronous file I/O. Do not introduce await
     between state dict updates - the single-threaded event loop
@@ -26,11 +29,10 @@ class FactStore:
 
     def __init__(self, project_root: str):
         self._project_root = os.path.abspath(project_root)
-        # These four dicts must stay in sync. _reload_facts_file and
+        # These three dicts must stay in sync. _reload_facts_file and
         # _remove_facts_file are the only mutation points.
         self._file_registry: dict[str, FileEntry] = {}
-        self._compiled_facts: dict[str, dict] = {}
-        self._merged_facts: dict[str, dict] = {}
+        self._facts: dict[str, Fact] = {}
         self._file_for_fact: dict[str, str] = {}
 
     def load_all_facts(self) -> None:
@@ -49,8 +51,7 @@ class FactStore:
             raise ValueError(f"Invalid facts: {'; '.join(messages)}")
 
         self._file_registry.clear()
-        self._compiled_facts.clear()
-        self._merged_facts.clear()
+        self._facts.clear()
         self._file_for_fact.clear()
 
         for ff in fact_files:
@@ -62,9 +63,8 @@ class FactStore:
             for fid in fact_ids:
                 self._file_for_fact[fid] = abs_path
 
-        for fid, fact in merged.items():
-            self._merged_facts[fid] = fact
-            self._compiled_facts[fid] = compile_fact_matchers(fact)
+        for fid, raw in merged.items():
+            self._facts[fid] = build_fact_from_dict(fid, raw)
 
     def refresh_facts_for_path(self, file_path: str) -> None:
         """Incrementally refresh facts along the ancestor/descendant branch of file_path.
@@ -89,18 +89,21 @@ class FactStore:
                 self._remove_facts_file(abs_path)
 
     def find_matching_facts(self, file_path: str, content: str | None = None, tags: list[str] | None = None) -> dict[str, dict]:
-        """Find facts matching file_path, optionally filtered by content and tags."""
+        """Find facts matching file_path, optionally filtered by content and tags.
+
+        Returns raw dicts for backward compatibility with consumers.
+        """
         self.refresh_facts_for_path(file_path)
 
         rel_path = resolve_relative_path(self._project_root, file_path)
         if rel_path is None:
             return {}
 
-        matching_ids = find_matching_facts(self._compiled_facts, rel_path, content=content)
+        matching_ids = find_matching_facts(self._facts, rel_path, content=content)
         if not matching_ids:
             return {}
 
-        result = {fid: self._merged_facts[fid] for fid in matching_ids}
+        result = {fid: build_dict_from_fact(self._facts[fid]) for fid in matching_ids}
 
         if tags:
             result = _filter_by_tags(result, tags)
@@ -108,8 +111,11 @@ class FactStore:
         return result
 
     def get_fact(self, fact_id: str) -> dict | None:
-        """Return merged fact dict for fact_id, or None if not found."""
-        return self._merged_facts.get(fact_id)
+        """Return fact as raw dict for fact_id, or None if not found."""
+        fact = self._facts.get(fact_id)
+        if fact is None:
+            return None
+        return build_dict_from_fact(fact)
 
     def create_fact(self, fact_text: str, incl: list[str], skip: list[str] | None = None, fact_id: str | None = None, tags: list[str] | None = None) -> dict:
         """Create a fact on disk and update in-memory state."""
@@ -156,11 +162,12 @@ class FactStore:
 
     def validate_all_facts(self) -> dict:
         """Re-validate all in-memory facts and return {valid, errors}."""
-        valid, errors = validate_fact_set(self._merged_facts)
+        raw_facts = {fid: build_dict_from_fact(f) for fid, f in self._facts.items()}
+        valid, errors = validate_fact_set(raw_facts)
         return {"valid": valid, "errors": errors}
 
     def _reload_facts_file(self, facts_json_path: str) -> None:
-        """Evict old facts from a file, then load+merge+compile replacements."""
+        """Evict old facts from a file, then load+merge+build replacements."""
         self._remove_facts_file(facts_json_path)
 
         if not os.path.exists(facts_json_path):
@@ -182,9 +189,8 @@ class FactStore:
         fact_ids = set(raw_facts.keys())
         self._file_registry[facts_json_path] = FileEntry(mtime=mtime, fact_ids=fact_ids)
 
-        for fid, fact in merged_chunk.items():
-            self._merged_facts[fid] = fact
-            self._compiled_facts[fid] = compile_fact_matchers(fact)
+        for fid, raw in merged_chunk.items():
+            self._facts[fid] = build_fact_from_dict(fid, raw)
             self._file_for_fact[fid] = facts_json_path
 
     def _remove_facts_file(self, facts_json_path: str) -> None:
@@ -194,8 +200,7 @@ class FactStore:
             return
 
         for fid in entry.fact_ids:
-            self._compiled_facts.pop(fid, None)
-            self._merged_facts.pop(fid, None)
+            self._facts.pop(fid, None)
             self._file_for_fact.pop(fid, None)
 
     def _scan_facts_branch(self, file_path: str) -> list[str]:

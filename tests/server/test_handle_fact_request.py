@@ -21,7 +21,7 @@ def test_ping(tmp_path):
 
 
 def test_find_facts(tmp_path):
-    store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["g:**/*.py"]}})
+    store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "find_facts", {"file_path": "src/app.py"})
     assert "f1" in result
 
@@ -33,7 +33,7 @@ def test_find_facts_missing_file_path(tmp_path):
 
 
 def test_read_fact(tmp_path):
-    store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["g:**/*.py"]}})
+    store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "read_fact", {"fact_id": "f1"})
     assert result["fact_id"] == "f1"
     assert result["fact"] == "Py"
@@ -49,14 +49,14 @@ def test_create_fact(tmp_path):
     store = _make_store(tmp_path)
     result = handle_fact_request(store, "create_fact", {
         "fact": "New fact",
-        "incl": ["g:**/*.ts"],
+        "incl": ["p:**/*.ts"],
     })
     assert "fact_id" in result
     assert result["fact"] == "New fact"
 
 
 def test_edit_fact(tmp_path):
-    store = _make_store(tmp_path, {"f1": {"fact": "Old", "incl": ["g:**/*.py"]}})
+    store = _make_store(tmp_path, {"f1": {"fact": "Old", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "edit_fact", {
         "fact_id": "f1",
         "fact": "New",
@@ -65,14 +65,14 @@ def test_edit_fact(tmp_path):
 
 
 def test_delete_fact(tmp_path):
-    store = _make_store(tmp_path, {"f1": {"fact": "Doomed", "incl": ["g:**/*.py"]}})
+    store = _make_store(tmp_path, {"f1": {"fact": "Doomed", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "delete_fact", {"fact_id": "f1"})
     assert result["fact_id"] == "f1"
     assert store.get_fact("f1") is None
 
 
 def test_validate(tmp_path):
-    store = _make_store(tmp_path, {"f1": {"fact": "Valid", "incl": ["g:**/*.py"]}})
+    store = _make_store(tmp_path, {"f1": {"fact": "Valid", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "validate", {})
     assert result["valid"] is True
 

@@ -15,8 +15,9 @@ conventions from silently drifting.
 
 Each fact has:
 - **fact**: short, actionable reminder text
-- **incl**: match patterns - "g:<glob>" for paths, "r:<regex>" for file \
-content. ALL must match. Combine glob+regex to scope precisely.
+- **incl**: match patterns - "p:<glob>" for paths, "c:<regex>" for file \
+content. OR within each type, AND between path and content groups. \
+Combine glob+regex to scope precisely.
 - **skip** (optional): exclusion patterns (same syntax). Any match excludes \
 the file.
 - **tags** (optional): metadata

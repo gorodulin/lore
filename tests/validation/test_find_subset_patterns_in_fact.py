@@ -5,16 +5,16 @@ class TestFindSubsetPatternsInFact:
     def test_finds_subsets_in_incl(self):
         fact = {
             "fact": "Test",
-            "incl": ["g:src/**/*.js", "g:**/*.js"],
+            "incl": ["p:src/**/*.js", "p:**/*.js"],
         }
         result = find_subset_patterns_in_fact(fact)
-        assert ("g:src/**/*.js", "g:**/*.js") in result
+        assert ("p:src/**/*.js", "p:**/*.js") in result
 
     def test_ignores_skip(self):
         fact = {
             "fact": "Test",
-            "incl": ["g:**/*.js"],
-            "skip": ["g:src/**/*.js"],  # not checked
+            "incl": ["p:**/*.js"],
+            "skip": ["p:src/**/*.js"],  # not checked
         }
         result = find_subset_patterns_in_fact(fact)
         assert result == []
