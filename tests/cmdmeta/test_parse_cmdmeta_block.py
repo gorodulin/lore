@@ -64,6 +64,19 @@ class TestParseCmdMetaBlock:
         with pytest.raises(CmdMetaParseError, match="missing ':'"):
             parse_cmdmeta_block(_block("# tools: ls", "# flags mutates"))
 
+    def test_trailing_whitespace_after_end_allowed(self):
+        parse_cmdmeta_block("# tools: ls\n# ---CMD-META-END---   \n\n")
+
+    def test_non_whitespace_after_end_rejected(self):
+        body = "# tools: ls\n# ---CMD-META-END---\nextra garbage"
+        with pytest.raises(CmdMetaParseError, match="content after END sentinel"):
+            parse_cmdmeta_block(body)
+
+    def test_shell_command_after_end_rejected(self):
+        body = "# tools: ls\n# ---CMD-META-END---\nrm -rf /"
+        with pytest.raises(CmdMetaParseError, match="content after END sentinel"):
+            parse_cmdmeta_block(body)
+
     def test_second_begin_inside_block(self):
         body = (
             "# tools: ls\n"

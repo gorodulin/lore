@@ -28,14 +28,22 @@ def parse_cmdmeta_block(post_begin_text: str) -> CmdMeta:
         block stay at their default empty tuple.
 
     Raises:
-        CmdMetaParseError: END sentinel missing, a second BEGIN
-            sentinel appears inside the block, any line is not a
-            ``# <key>: <values>`` comment, a key is unknown, or the
-            required ``tools:`` key is missing.
+        CmdMetaParseError: END sentinel missing, non-whitespace content
+            follows the END sentinel, a second BEGIN sentinel appears
+            inside the block, any line is not a ``# <key>: <values>``
+            comment, a key is unknown, or the required ``tools:`` key
+            is missing.
     """
     end_idx = post_begin_text.find(_END_SENTINEL)
     if end_idx == -1:
         raise CmdMetaParseError("END sentinel '# ---CMD-META-END---' missing")
+
+    tail = post_begin_text[end_idx + len(_END_SENTINEL):]
+    if tail.strip():
+        raise CmdMetaParseError(
+            "unexpected content after END sentinel: "
+            f"{tail.strip()[:60]!r}"
+        )
 
     block_body = post_begin_text[:end_idx]
 
