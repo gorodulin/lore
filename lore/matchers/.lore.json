@@ -1,0 +1,7 @@
+{
+  "dx2LwqCM0Q": {
+    "fact": "matchers/ holds match-time primitives — take compiled patterns, return match results. Prefix parsing and serialization belong in store/.",
+    "incl": ["p:**/*.py"],
+    "tags": ["kind:convention"]
+  }
+}

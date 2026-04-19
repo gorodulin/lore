@@ -1,0 +1,7 @@
+{
+  "KIgtGzZYoy": {
+    "fact": "These files handle p:/c: prefix serialization — that is why they live in store/ despite the \"matcher\" in their names. matchers/ holds boundary-agnostic match-time primitives.",
+    "incl": ["p:build_matcher_set_from_strings.py", "p:build_matcher_string.py", "p:build_strings_from_matcher_set.py", "p:compile_matcher.py", "p:parse_matcher_string.py", "p:transform_matchers.py"],
+    "tags": ["kind:convention"]
+  }
+}
