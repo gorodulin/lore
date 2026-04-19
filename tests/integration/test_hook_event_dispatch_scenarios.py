@@ -249,6 +249,63 @@ class TestBashEventDispatch:
         ctx = response["hookSpecificOutput"]["additionalContext"]
         assert "Prod cluster ops need --dry-run first" in ctx
 
+    def test_bash_f_fact_fires_on_flags_entry(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "mutating-guard": {
+                "fact": "Mutating commands need explicit confirmation",
+                "incl": ["f:mutates"],
+                "tags": ["hook:bash"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta(
+            "git commit -m 'update'",
+            tools=("git commit",),
+            flags=("mutates",),
+        )
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-f-1",
+            "tool_input": {"command": cmd, "description": "Commit"},
+        }, tmp_path)
+
+        ctx = response["hookSpecificOutput"]["additionalContext"]
+        assert "Mutating commands need explicit confirmation" in ctx
+
+    def test_bash_f_skip_suppresses_when_flag_present(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "find-usage": {
+                "fact": "Remember to share find results with the user",
+                "incl": ["t:find"],
+                "skip": ["f:agent_initiated"],
+                "tags": ["hook:bash"],
+            },
+        }))
+        # Agent-initiated find → skip fires, fact suppressed.
+        cmd_agent = build_bash_command_with_cmdmeta(
+            "find . -name '*.py'",
+            tools=("find",),
+            flags=("agent_initiated",),
+        )
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-f-2a",
+            "tool_input": {"command": cmd_agent, "description": "Search"},
+        }, tmp_path)
+        assert "additionalContext" not in response.get("hookSpecificOutput", {})
+
+        # User-initiated find → fact surfaces.
+        cmd_user = build_bash_command_with_cmdmeta("find . -name '*.py'", tools=("find",))
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-f-2b",
+            "tool_input": {"command": cmd_user, "description": "Search"},
+        }, tmp_path)
+        ctx = response["hookSpecificOutput"]["additionalContext"]
+        assert "Remember to share find results" in ctx
+
     def test_bash_t_fact_does_not_fire_when_tool_absent(self, tmp_path):
         """t: matcher on 'git push' must not fire when tools entry is 'ls'."""
         _write(tmp_path / ".lore.json", json.dumps({

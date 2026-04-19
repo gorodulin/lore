@@ -30,10 +30,12 @@ def _handle_find_facts(store, params: dict) -> dict:
     tools = tuple(tools_param) if tools_param is not None else None
     endpoints_param = params.get("endpoints")
     endpoints = tuple(endpoints_param) if endpoints_param is not None else None
+    flags_param = params.get("flags")
+    flags = tuple(flags_param) if flags_param is not None else None
     tags = params.get("tags")
-    if not file_path and description is None and command is None and tools is None and endpoints is None:
-        raise ValueError("find_facts requires 'file_path', 'description', 'command', 'tools', or 'endpoints' param")
-    return store.find_matching_facts(file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, tags=tags)
+    if not file_path and description is None and command is None and tools is None and endpoints is None and flags is None:
+        raise ValueError("find_facts requires 'file_path', 'description', 'command', 'tools', 'endpoints', or 'flags' param")
+    return store.find_matching_facts(file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags, tags=tags)
 
 
 def _handle_read_fact(store, params: dict) -> dict:

@@ -100,3 +100,30 @@ class TestBuildDictFromFact:
         fact = build_fact_from_dict("f10", raw)
         result = build_dict_from_fact(fact)
         assert result == raw
+
+    def test_roundtrip_flag(self):
+        raw = {
+            "fact": "Mutating op",
+            "incl": ["f:mutates"],
+        }
+        fact = build_fact_from_dict("f11", raw)
+        result = build_dict_from_fact(fact)
+        assert result == raw
+
+    def test_roundtrip_mixed_all_seven(self):
+        # Canonical order: p, c, d, x, t, e, f.
+        raw = {
+            "fact": "Full kit including flag",
+            "incl": [
+                "p:src/**",
+                "c:import",
+                "d:(?i)deploy",
+                "x:apply",
+                "t:kubectl",
+                "e:\\.prod\\.",
+                "f:mutates",
+            ],
+        }
+        fact = build_fact_from_dict("f12", raw)
+        result = build_dict_from_fact(fact)
+        assert result == raw

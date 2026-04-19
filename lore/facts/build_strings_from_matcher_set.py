@@ -35,4 +35,7 @@ def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:
     for compiled_regex in matcher_set.endpoint_regexes:
         result.append(build_matcher_string("endpoint", compiled_regex.pattern))
 
+    for flag_literal in matcher_set.flag_literals:
+        result.append(build_matcher_string("flag", flag_literal))
+
     return result

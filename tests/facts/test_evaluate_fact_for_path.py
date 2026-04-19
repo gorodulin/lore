@@ -352,3 +352,68 @@ class TestEvaluateFactForPath:
         assert evaluate_fact_for_path(
             fact, "", tools=("curl",), endpoints=("localhost:8080",)
         ) is False
+
+    # --- Flag literal matcher tests (f:) — exact-match against flags ---
+
+    def test_flag_only_match(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(fact, "", flags=("mutates",)) is True
+
+    def test_flag_matches_among_multiple(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(
+            fact, "", flags=("network", "mutates", "irreversible")
+        ) is True
+
+    def test_flag_no_match(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(fact, "", flags=("network",)) is False
+
+    def test_flag_exact_match_not_substring(self):
+        """f: is literal equality — no substring semantics."""
+        fact = _build({"fact": "Network", "incl": ["f:network"]})
+        # "network" doesn't match the literal "networking" (not in vocab
+        # but this asserts semantics regardless).
+        assert evaluate_fact_for_path(fact, "", flags=("networking",)) is False
+
+    def test_flag_none_means_no_source(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(fact, "", flags=None) is False
+
+    def test_flag_empty_tuple_means_no_match(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(fact, "", flags=()) is False
+
+    def test_flag_missing_on_file_event(self):
+        fact = _build({"fact": "Mutating", "incl": ["f:mutates"]})
+        assert evaluate_fact_for_path(fact, "src/app.py", content="anything") is False
+
+    def test_multiple_flag_literals_or(self):
+        fact = _build({"fact": "Risky", "incl": ["f:mutates", "f:network"]})
+        assert evaluate_fact_for_path(fact, "", flags=("mutates",)) is True
+        assert evaluate_fact_for_path(fact, "", flags=("network",)) is True
+        assert evaluate_fact_for_path(fact, "", flags=("slow",)) is False
+
+    def test_flag_combined_with_tool(self):
+        fact = _build({
+            "fact": "Destructive git push",
+            "incl": ["t:git push", "f:irreversible"],
+        })
+        assert evaluate_fact_for_path(
+            fact, "", tools=("git push",), flags=("mutates", "irreversible")
+        ) is True
+        assert evaluate_fact_for_path(
+            fact, "", tools=("git push",), flags=("mutates",)
+        ) is False
+
+    def test_skip_flag_excludes_agent_initiated(self):
+        """Canonical skip example from the plan."""
+        fact = _build({
+            "fact": "User-initiated find",
+            "incl": ["t:find"],
+            "skip": ["f:agent_initiated"],
+        })
+        assert evaluate_fact_for_path(fact, "", tools=("find",), flags=()) is True
+        assert evaluate_fact_for_path(
+            fact, "", tools=("find",), flags=("agent_initiated",)
+        ) is False

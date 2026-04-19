@@ -122,3 +122,20 @@ class TestBuildMatcherSetFromStrings:
         result = build_matcher_set_from_strings(["t:kubectl", "e:\\.prod\\."])
         assert len(result.tool_regexes) == 1
         assert len(result.endpoint_regexes) == 1
+
+    def test_flag_only(self):
+        result = build_matcher_set_from_strings(["f:mutates"])
+        assert result.path_globs == ()
+        assert result.tool_regexes == ()
+        assert result.endpoint_regexes == ()
+        assert result.flag_literals == ("mutates",)
+
+    def test_flag_multiple(self):
+        result = build_matcher_set_from_strings(["f:mutates", "f:network"])
+        assert result.flag_literals == ("mutates", "network")
+
+    def test_flag_stored_as_raw_string_not_regex(self):
+        """Flag literals are exact-match strings, not re.Pattern objects."""
+        result = build_matcher_set_from_strings(["f:agent_initiated"])
+        assert result.flag_literals[0] == "agent_initiated"
+        assert isinstance(result.flag_literals[0], str)

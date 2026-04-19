@@ -41,12 +41,13 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         command = resolution.bare_command or None
         tools = resolution.meta.tools if resolution.meta is not None else None
         endpoints = _resolve_endpoints(resolution.meta, tool_input)
+        flags = resolution.meta.flags if resolution.meta is not None else None
 
         if not file_path and not description and not command:
             return {}
 
         content = _resolve_content(event_data, file_path, project_root) if file_path else None
-        facts = _find_facts_via_server(project_root, file_path, content, description, command, tools, endpoints, hook_tag)
+        facts = _find_facts_via_server(project_root, file_path, content, description, command, tools, endpoints, flags, hook_tag)
         if not facts:
             return {}
 
@@ -83,7 +84,7 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         return {}
 
 
-def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None, endpoints: tuple[str, ...] | None, hook_tag: str | None) -> dict[str, dict]:
+def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None, endpoints: tuple[str, ...] | None, flags: tuple[str, ...] | None, hook_tag: str | None) -> dict[str, dict]:
     """Try the lore server first, fall back to in-process matching."""
     params = {}
     if file_path:
@@ -98,13 +99,15 @@ def _find_facts_via_server(project_root: str, file_path: str, content: str | Non
         params["tools"] = list(tools)
     if endpoints is not None:
         params["endpoints"] = list(endpoints)
+    if flags is not None:
+        params["flags"] = list(flags)
     if hook_tag is not None:
         params["tags"] = [hook_tag]
     result = try_send_fact_request(project_root, "find_facts", params)
     if result is not None:
         return result
     # Fallback: in-process
-    facts = match_facts_for_path(project_root, file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints)
+    facts = match_facts_for_path(project_root, file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags)
     return filter_facts_by_hook_tag(facts, hook_tag)
 
 

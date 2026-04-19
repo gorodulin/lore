@@ -133,3 +133,36 @@ class TestBuildStringsFromMatcherSet:
         original = ["e:api\\.prod\\.com"]
         ms = build_matcher_set_from_strings(original)
         assert build_strings_from_matcher_set(ms) == original
+
+    def test_flag_only(self):
+        ms = build_matcher_set_from_strings(["f:mutates"])
+        assert build_strings_from_matcher_set(ms) == ["f:mutates"]
+
+    def test_canonical_order_all_seven_types(self):
+        """Serialization order: path, content, description, command, tool, endpoint, flag."""
+        ms = build_matcher_set_from_strings(
+            [
+                "f:mutates",
+                "e:\\.prod\\.",
+                "t:kubectl",
+                "x:apply",
+                "d:(?i)deploy",
+                "c:import os",
+                "p:**/*.py",
+            ]
+        )
+        result = build_strings_from_matcher_set(ms)
+        assert result == [
+            "p:**/*.py",
+            "c:import os",
+            "d:(?i)deploy",
+            "x:apply",
+            "t:kubectl",
+            "e:\\.prod\\.",
+            "f:mutates",
+        ]
+
+    def test_roundtrip_flag(self):
+        original = ["f:agent_initiated"]
+        ms = build_matcher_set_from_strings(original)
+        assert build_strings_from_matcher_set(ms) == original

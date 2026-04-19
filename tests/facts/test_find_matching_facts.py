@@ -132,3 +132,18 @@ class TestFindMatchingFacts:
 
         result = find_matching_facts(facts, "", endpoints=("api.staging.com",))
         assert result == ["staging"]
+
+    def test_flags_filtering(self):
+        facts = {
+            "mut": build_fact_from_dict("mut", {"fact": "Mutates", "incl": ["f:mutates"]}),
+            "net": build_fact_from_dict("net", {"fact": "Network", "incl": ["f:network"]}),
+        }
+
+        result = find_matching_facts(facts, "", flags=("mutates",))
+        assert result == ["mut"]
+
+        result = find_matching_facts(facts, "", flags=("network",))
+        assert result == ["net"]
+
+        result = find_matching_facts(facts, "", flags=("mutates", "network"))
+        assert sorted(result) == ["mut", "net"]

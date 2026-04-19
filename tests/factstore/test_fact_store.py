@@ -113,6 +113,28 @@ def test_find_matching_facts_with_endpoints(tmp_path):
     assert "prod" not in result
 
 
+def test_find_matching_facts_with_flags(tmp_path):
+    facts = {
+        "mutates": {
+            "fact": "Mutating command",
+            "incl": ["f:mutates"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(facts))
+
+    store = FactStore(str(tmp_path))
+    store.load_all_facts()
+
+    result = store.find_matching_facts("", flags=("mutates",))
+    assert "mutates" in result
+
+    result = store.find_matching_facts("", flags=("network",))
+    assert result == {}
+
+    result = store.find_matching_facts("src/app.py")
+    assert "mutates" not in result
+
+
 def test_refresh_facts_detects_mtime_change(tmp_path):
     facts = {"f1": {"fact": "Original", "incl": ["p:**/*.py"]}}
     facts_file = tmp_path / ".lore.json"

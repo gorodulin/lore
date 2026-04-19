@@ -68,3 +68,11 @@ class TestBuildFactFromDict:
         assert len(result.incl.endpoint_regexes) == 2
         assert result.incl.endpoint_regexes[0].pattern == "\\.prod\\."
         assert result.incl.endpoint_regexes[1].pattern == "api\\.internal"
+
+    def test_with_flag_matchers(self):
+        raw = {
+            "fact": "Risky ops",
+            "incl": ["f:mutates", "f:network"],
+        }
+        result = build_fact_from_dict("f8", raw)
+        assert result.incl.flag_literals == ("mutates", "network")

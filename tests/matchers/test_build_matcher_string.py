@@ -22,6 +22,9 @@ class TestBuildMatcherString:
     def test_endpoint_type(self):
         assert build_matcher_string("endpoint", "api.prod.com") == "e:api.prod.com"
 
+    def test_flag_type(self):
+        assert build_matcher_string("flag", "mutates") == "f:mutates"
+
     def test_string_type(self):
         assert build_matcher_string("string", "exact/path.txt") == "s:exact/path.txt"
 
@@ -79,6 +82,14 @@ class TestBuildMatcherString:
         from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "e:\\.prod\\."
+        matcher_type, value = parse_matcher_string(original)
+        rebuilt = build_matcher_string(matcher_type, value)
+        assert rebuilt == original
+
+    def test_roundtrip_flag(self):
+        from lore.matchers.parse_matcher_string import parse_matcher_string
+
+        original = "f:mutates"
         matcher_type, value = parse_matcher_string(original)
         rebuilt = build_matcher_string(matcher_type, value)
         assert rebuilt == original

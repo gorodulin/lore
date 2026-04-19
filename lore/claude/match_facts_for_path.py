@@ -4,7 +4,7 @@ import traceback
 from lore.facts.match_facts_for_path import match_facts_for_path as match_facts_impl
 
 
-def match_facts_for_path(project_root: str, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None) -> dict[str, dict]:
+def match_facts_for_path(project_root: str, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None, flags: tuple[str, ...] | None = None) -> dict[str, dict]:
     """Run the full matching pipeline and return facts matching a tool event.
 
     Thin error-swallowing wrapper around lore.facts.match_facts_for_path
@@ -22,9 +22,10 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
         command: Optional raw command text for command regexes
         tools: Optional per-item tool entries from CMD-META for ``t:`` matchers
         endpoints: Optional per-item endpoint entries for ``e:`` matchers
+        flags: Optional per-item flag literals from CMD-META for ``f:`` matchers
     """
     try:
-        return match_facts_impl(project_root, file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints)
+        return match_facts_impl(project_root, file_path, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags)
     except Exception:
         print(traceback.format_exc(), file=sys.stderr)
         return {}

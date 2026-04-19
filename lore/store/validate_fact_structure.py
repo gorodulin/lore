@@ -2,6 +2,7 @@ import re
 
 from lore.matchers.parse_matcher_string import parse_matcher_string
 from lore.globs.validate_glob_pattern import validate_glob_pattern
+from lore.cmdmeta.flag_vocabulary import FLAG_VOCABULARY
 from lore.errors.create_error import create_error
 from lore import error_codes
 
@@ -159,5 +160,17 @@ def _validate_matcher(fact_id: str, field: str, index: int, matcher: str) -> lis
                 index=index,
                 matcher=matcher,
             ))
+
+    # Validate closed vocabulary for flag literals
+    if matcher_type == "flag" and value not in FLAG_VOCABULARY:
+        errors.append(create_error(
+            error_codes.UNKNOWN_FLAG_VALUE,
+            f"Fact '{fact_id}' {field}[{index}]: unknown flag {value!r}; "
+            f"expected one of {sorted(FLAG_VOCABULARY)}",
+            fact_id=fact_id,
+            field=field,
+            index=index,
+            matcher=matcher,
+        ))
 
     return errors

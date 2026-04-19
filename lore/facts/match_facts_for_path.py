@@ -6,7 +6,7 @@ from lore.facts.find_matching_facts import find_matching_facts
 from lore.paths.resolve_relative_path import resolve_relative_path
 
 
-def match_facts_for_path(project_root: str, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None) -> dict[str, dict]:
+def match_facts_for_path(project_root: str, file_path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None, flags: tuple[str, ...] | None = None) -> dict[str, dict]:
     """Run the full matching pipeline and return facts matching a tool event.
 
     Loads all .lore.json files under project_root, merges, validates,
@@ -21,6 +21,7 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
         command: Optional raw command text for command regexes
         tools: Optional per-item tool entries from CMD-META for ``t:`` matchers
         endpoints: Optional per-item endpoint entries for ``e:`` matchers
+        flags: Optional per-item flag literals from CMD-META for ``f:`` matchers
 
     Returns:
         Dict mapping fact_id to raw fact dict for every matching fact.
@@ -52,7 +53,7 @@ def match_facts_for_path(project_root: str, file_path: str, content: str | None 
 
     typed_facts = {fid: build_fact_from_dict(fid, fact) for fid, fact in merged.items()}
 
-    matching_ids = find_matching_facts(typed_facts, normalized, content=content, description=description, command=command, tools=tools, endpoints=endpoints)
+    matching_ids = find_matching_facts(typed_facts, normalized, content=content, description=description, command=command, tools=tools, endpoints=endpoints, flags=flags)
     if not matching_ids:
         return {}
 

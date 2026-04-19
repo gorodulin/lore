@@ -10,3 +10,4 @@ class MatcherSet:
     command_regexes: tuple[re.Pattern, ...] = ()
     tool_regexes: tuple[re.Pattern, ...] = ()
     endpoint_regexes: tuple[re.Pattern, ...] = ()
+    flag_literals: tuple[str, ...] = ()

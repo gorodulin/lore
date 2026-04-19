@@ -7,6 +7,7 @@ VALID_PREFIXES = {
     "x": "command",
     "t": "tool",
     "e": "endpoint",
+    "f": "flag",
     "s": "string",
 }
 
@@ -22,6 +23,8 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
     - "t:" for tool-entry regexes (per-item against CMD-META tools)
     - "e:" for endpoint regexes (per-item against CMD-META endpoints /
       WebFetch url)
+    - "f:" for flag literals (per-item exact match against CMD-META
+      flags; closed vocabulary from lore.cmdmeta.flag_vocabulary)
     - "s:" for literal strings (future)
 
     Args:
@@ -30,7 +33,7 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
     Returns:
         Tuple of (matcher_type, value) where matcher_type is one of
         "path", "content", "description", "command", "tool", "endpoint",
-        "string".
+        "flag", "string".
 
     Raises:
         ValueError: If matcher has no prefix or invalid prefix

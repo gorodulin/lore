@@ -47,6 +47,12 @@ class TestCompileMatcher:
         assert result.search("api.prod.com") is not None
         assert result.search("api.staging.com") is None
 
+    def test_compile_flag_returns_raw_string(self):
+        """Flag matchers are exact-match literals, not regexes."""
+        result = compile_matcher("flag", "mutates")
+        assert result == "mutates"
+        assert not isinstance(result, re.Pattern)
+
     def test_unknown_type_raises(self):
         with pytest.raises(ValueError, match="Unknown matcher type"):
             compile_matcher("unknown", "value")

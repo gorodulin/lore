@@ -5,7 +5,7 @@ from lore.facts.matcher_set import MatcherSet
 from lore.matchers.match_path_to_glob import match_path_to_glob
 
 
-def evaluate_fact_for_path(fact: Fact, path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None) -> bool:
+def evaluate_fact_for_path(fact: Fact, path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None, endpoints: tuple[str, ...] | None = None, flags: tuple[str, ...] | None = None) -> bool:
     """Test if a tool event matches a typed Fact.
 
     Within each MatcherSet, matchers of the same target OR together,
@@ -30,14 +30,17 @@ def evaluate_fact_for_path(fact: Fact, path: str, content: str | None = None, de
             any entry matches any regex.
         endpoints: Optional per-item endpoint entries. Source: CMD-META
             endpoints on Bash events, ``(tool_input.url,)`` on WebFetch.
+        flags: Optional per-item flag literals from CMD-META. Each ``f:``
+            entry is tested for exact membership; the group matches if
+            any fact entry appears in the event's flags.
 
     Returns:
         True if the event matches the fact, False otherwise.
     """
-    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description, command, tools, endpoints):
+    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description, command, tools, endpoints, flags):
         return False
 
-    return _matches_matcher_set(fact.incl, path, content, description, command, tools, endpoints)
+    return _matches_matcher_set(fact.incl, path, content, description, command, tools, endpoints, flags)
 
 
 def _has_matchers(matcher_set: MatcherSet) -> bool:
@@ -49,10 +52,11 @@ def _has_matchers(matcher_set: MatcherSet) -> bool:
         or matcher_set.command_regexes
         or matcher_set.tool_regexes
         or matcher_set.endpoint_regexes
+        or matcher_set.flag_literals
     )
 
 
-def _matches_matcher_set(matcher_set: MatcherSet, path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None, endpoints: tuple[str, ...] | None) -> bool:
+def _matches_matcher_set(matcher_set: MatcherSet, path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None, endpoints: tuple[str, ...] | None, flags: tuple[str, ...] | None) -> bool:
     """Check if an event matches a MatcherSet."""
     return (
         _check_path_globs(matcher_set.path_globs, path)
@@ -61,6 +65,7 @@ def _matches_matcher_set(matcher_set: MatcherSet, path: str, content: str | None
         and _check_text_regexes(matcher_set.command_regexes, command)
         and _check_any_regex_in_items(matcher_set.tool_regexes, tools)
         and _check_any_regex_in_items(matcher_set.endpoint_regexes, endpoints)
+        and _check_any_literal_in_items(matcher_set.flag_literals, flags)
     )
 
 
@@ -98,3 +103,18 @@ def _check_any_regex_in_items(regexes: tuple[re.Pattern, ...], items: tuple[str,
     if items is None:
         return False
     return any(r.search(item) for r in regexes for item in items)
+
+
+def _check_any_literal_in_items(literals: tuple[str, ...], items: tuple[str, ...] | None) -> bool:
+    """Per-item exact-match check: True if any literal equals any item.
+
+    Same empty/None semantics as :func:`_check_any_regex_in_items`, but
+    uses set membership instead of regex search — suitable for closed
+    vocabularies like CMD-META flags.
+    """
+    if not literals:
+        return True
+    if items is None:
+        return False
+    items_set = frozenset(items)
+    return any(literal in items_set for literal in literals)

@@ -165,3 +165,36 @@ class TestValidateFactStructure:
         fact = {"fact": "Test", "incl": ["e:[invalid"]}
         errors = validate_fact_structure("f1", fact)
         assert any(e["code"] == error_codes.INVALID_REGEX_PATTERN for e in errors)
+
+    def test_valid_flag_matcher(self):
+        fact = {"fact": "Test", "incl": ["f:mutates"]}
+        errors = validate_fact_structure("f1", fact)
+        assert errors == []
+
+    def test_unknown_flag_value_rejected(self):
+        fact = {"fact": "Test", "incl": ["f:bogus_flag"]}
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.UNKNOWN_FLAG_VALUE for e in errors)
+
+    def test_unknown_flag_error_lists_vocabulary(self):
+        fact = {"fact": "Test", "incl": ["f:bogus_flag"]}
+        errors = validate_fact_structure("f1", fact)
+        unknown_errors = [e for e in errors if e["code"] == error_codes.UNKNOWN_FLAG_VALUE]
+        assert len(unknown_errors) == 1
+        assert "bogus_flag" in unknown_errors[0]["message"]
+        assert "mutates" in unknown_errors[0]["message"]
+
+    def test_flag_case_sensitive_uppercase_rejected(self):
+        """FLAG_VOCABULARY is all lowercase; uppercase must fail membership."""
+        fact = {"fact": "Test", "incl": ["f:MUTATES"]}
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.UNKNOWN_FLAG_VALUE for e in errors)
+
+    def test_flag_in_skip_also_validated(self):
+        fact = {
+            "fact": "Test",
+            "incl": ["p:**/*.py"],
+            "skip": ["f:not_a_flag"],
+        }
+        errors = validate_fact_structure("f1", fact)
+        assert any(e["code"] == error_codes.UNKNOWN_FLAG_VALUE for e in errors)

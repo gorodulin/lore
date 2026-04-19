@@ -13,6 +13,7 @@ class TestMatcherSet:
         assert ms.command_regexes == ()
         assert ms.tool_regexes == ()
         assert ms.endpoint_regexes == ()
+        assert ms.flag_literals == ()
 
     def test_with_path_globs(self):
         glob = compile_glob_pattern("**/*.py")
@@ -37,6 +38,10 @@ class TestMatcherSet:
         ms = MatcherSet(endpoint_regexes=(pattern,))
         assert len(ms.endpoint_regexes) == 1
         assert ms.endpoint_regexes[0].pattern == "\\.prod\\."
+
+    def test_with_flag_literals(self):
+        ms = MatcherSet(flag_literals=("mutates", "network"))
+        assert ms.flag_literals == ("mutates", "network")
 
     def test_frozen(self):
         ms = MatcherSet()

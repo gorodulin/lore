@@ -163,3 +163,19 @@ def test_endpoints_param_matches_endpoint_fact(tmp_path):
 
     result = match_facts_for_path(str(tmp_path), "", endpoints=("api.staging.com",))
     assert result == {}
+
+
+def test_flags_param_matches_flag_fact(tmp_path):
+    rules = {
+        "mutates": {
+            "fact": "Command mutates state",
+            "incl": ["f:mutates"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    result = match_facts_for_path(str(tmp_path), "", flags=("mutates", "network"))
+    assert "mutates" in result
+
+    result = match_facts_for_path(str(tmp_path), "", flags=("network",))
+    assert result == {}

@@ -237,3 +237,24 @@ async def test_find_with_endpoints_matches_e_fact(tmp_path):
         assert "prod-rule" in result
     finally:
         await _stop_server(task)
+
+
+@pytest.mark.asyncio
+async def test_find_with_flags_matches_f_fact(tmp_path):
+    """flags param over the wire fires an f: literal per-item."""
+    task, socket_path = await _start_server(tmp_path, facts={
+        "mut-rule": {
+            "fact": "Mutating commands require review",
+            "incl": ["f:mutates"],
+            "tags": ["hook:bash"],
+        },
+    })
+    try:
+        result = await send_fact_request_async(
+            socket_path, "find_facts",
+            {"flags": ["network", "mutates"]},
+            5.0, project_root=str(tmp_path),
+        )
+        assert "mut-rule" in result
+    finally:
+        await _stop_server(task)

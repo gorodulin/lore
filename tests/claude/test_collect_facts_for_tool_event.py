@@ -646,6 +646,60 @@ def test_webfetch_event_matches_endpoint_regex_from_url(tmp_path):
     assert "Internal prod API requires auth header" in ctx
 
 
+def test_bash_event_matches_flag_literal_via_cmdmeta(tmp_path):
+    """PreToolUse/Bash: f: literal matches meta.flags entry exactly."""
+    rules = {
+        "mutating": {
+            "fact": "Mutating command — double-check",
+            "incl": ["f:mutates"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    command = build_bash_command_with_cmdmeta(
+        "git commit -m 'fix'",
+        tools=("git commit",),
+        flags=("mutates",),
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "Commit fix"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Mutating command" in ctx
+
+
+def test_bash_event_flag_fact_does_not_fire_when_absent(tmp_path):
+    rules = {
+        "mutating": {
+            "fact": "Mutating",
+            "incl": ["f:mutates"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    # Command declares no flags; mutates is absent.
+    command = build_bash_command_with_cmdmeta("ls -la", tools=("ls",))
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "List"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+    assert result == {}
+
+
 def test_webfetch_without_url_does_not_fire_endpoint_fact(tmp_path):
     """WebFetch with no url → endpoints=None; e: fact must not fire."""
     rules = {
