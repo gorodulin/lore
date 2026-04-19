@@ -1,15 +1,28 @@
-.PHONY: help test install ruff vulture skylos
+.PHONY: help test test-integration test-all install ruff vulture skylos
 
 help:
 	@echo "Available targets:"
-	@echo "  help     - Show this help message"
-	@echo "  install  - Install dependencies with uv"
-	@echo "  test     - Run tests with pytest and check coverage"
-	@echo "  ruff     - Run ruff linter"
-	@echo "  vulture  - Find unused code with vulture"
-	@echo "  skylos   - Run skylos static analysis and security checks"
+	@echo "  help              - Show this help message"
+	@echo "  install           - Install dependencies with uv"
+	@echo "  test              - Run unit tests + lint (fast; excludes tests/integration/)"
+	@echo "  test-integration  - Run integration tests only (subprocess + socket roundtrip)"
+	@echo "  test-all          - Run unit + integration + lint"
+	@echo "  ruff              - Run ruff linter"
+	@echo "  vulture           - Find unused code with vulture"
+	@echo "  skylos            - Run skylos static analysis and security checks"
 
 test:
+	@scripts/find_missing_tests lore tests
+	uv run ruff check .
+	uv run pytest -q --ignore=tests/integration
+	$(MAKE) vulture
+	$(MAKE) skylos
+	@uv tool install --force --reinstall . -q
+
+test-integration:
+	uv run pytest -q tests/integration
+
+test-all:
 	@scripts/find_missing_tests lore tests
 	uv run ruff check .
 	uv run pytest -q
