@@ -3,6 +3,7 @@ import traceback
 
 from lore.claude.log_hook_event import log_hook_event
 from lore.claude.collect_facts_for_tool_event import collect_facts_for_tool_event
+from lore.claude.check_bash_cmdmeta import check_bash_cmdmeta
 
 
 HANDLERS = [
@@ -10,6 +11,7 @@ HANDLERS = [
     ("PostToolUse", "Read", "hook:read", collect_facts_for_tool_event, 5),
     ("PreToolUse", "Edit", "hook:edit", collect_facts_for_tool_event, 1),
     ("PreToolUse", "Write", "hook:write", collect_facts_for_tool_event, 1),
+    ("PreToolUse", "Bash", None, check_bash_cmdmeta, 1),
     ("PreToolUse", "Bash", "hook:bash", collect_facts_for_tool_event, 1),
     ("PreToolUse", "Task", "hook:agent", collect_facts_for_tool_event, 1),
     ("PreToolUse", "WebFetch", "hook:webfetch", collect_facts_for_tool_event, 1),

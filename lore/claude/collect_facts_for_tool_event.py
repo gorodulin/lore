@@ -5,6 +5,9 @@ import traceback
 from lore.claude.match_facts_for_path import match_facts_for_path
 from lore.claude.filter_facts_by_hook_tag import filter_facts_by_hook_tag
 from lore.claude.filter_facts_by_display_rate import filter_facts_by_display_rate
+from lore.cmdmeta.extract_cmdmeta_block import extract_cmdmeta_block
+from lore.cmdmeta.parse_cmdmeta_block import CmdMetaParseError, parse_cmdmeta_block
+from lore.cmdmeta.validate_cmdmeta import validate_cmdmeta
 from lore.facts.build_fact_render_context import build_fact_render_context
 from lore.facts.render_fact_text import render_fact_text
 from lore.client.try_send_fact_request import try_send_fact_request
@@ -32,7 +35,12 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         tool_input = event_data.get("tool_input", {})
         file_path = tool_input.get("file_path", "")
         description = tool_input.get("description") or tool_input.get("query") or None
-        command = tool_input.get("command") or None
+
+        raw_command = tool_input.get("command", "")
+        bare_command = _resolve_bare_command(raw_command)
+        if bare_command is None:
+            return {}
+        command = bare_command or None
 
         if not file_path and not description and not command:
             return {}
@@ -73,6 +81,34 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
     except Exception:
         print(traceback.format_exc(), file=sys.stderr)
         return {}
+
+
+def _resolve_bare_command(raw_command: str) -> str | None:
+    """Return the META-stripped command for ``x:`` matching, or ``None`` to skip.
+
+    Non-Bash events arrive with ``raw_command`` empty — returns ``""``
+    so the caller knows there's no command to match on.
+
+    Bash events carry a CMD-META trailer; the gate handler
+    (:mod:`lore.claude.check_bash_cmdmeta`) has already denied malformed
+    blocks before this point. Returning ``None`` asks the caller to
+    suppress further output: the gate's deny payload is already queued
+    and we don't want to layer ``additionalContext`` on top of it.
+    """
+    bare_command, block_text = extract_cmdmeta_block(raw_command)
+
+    if block_text is None:
+        return bare_command
+
+    try:
+        meta = parse_cmdmeta_block(block_text)
+    except CmdMetaParseError:
+        return None
+
+    if validate_cmdmeta(meta):
+        return None
+
+    return bare_command
 
 
 def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, hook_tag: str | None) -> dict[str, dict]:

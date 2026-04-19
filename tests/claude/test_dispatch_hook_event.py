@@ -123,6 +123,36 @@ class TestDispatchHookEvent:
         )
         assert result["hookSpecificOutput"]["additionalContext"] == "ok"
 
+    def test_bash_without_cmdmeta_is_denied_by_gate(self, tmp_path):
+        """Default HANDLERS registry routes Bash through the CMD-META gate."""
+        result = dispatch_hook_event(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": "ls"},
+            },
+            project_root=str(tmp_path),
+            log_path=str(tmp_path / "events.jsonl"),
+        )
+        assert result["hookSpecificOutput"]["permissionDecision"] == "deny"
+        assert "CMD-META" in result["hookSpecificOutput"]["permissionDecisionReason"]
+
+    def test_bash_with_valid_cmdmeta_passes_gate(self, tmp_path):
+        """Valid META block means the gate returns {} and collector handles the event."""
+        command = "ls  # ---CMD-META-BEGIN---\n# tools: ls\n# ---CMD-META-END---"
+        result = dispatch_hook_event(
+            {
+                "hook_event_name": "PreToolUse",
+                "tool_name": "Bash",
+                "tool_input": {"command": command},
+            },
+            project_root=str(tmp_path),
+            log_path=str(tmp_path / "events.jsonl"),
+        )
+        # No facts in empty project → no additionalContext; and no deny either.
+        hook_output = result.get("hookSpecificOutput", {})
+        assert hook_output.get("permissionDecision") != "deny"
+
     def test_hook_tag_passed_to_handler(self, tmp_path, monkeypatch):
         from lore.claude import dispatch_hook_event as mod
 

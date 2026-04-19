@@ -447,6 +447,36 @@ def test_bash_event_command_regex_no_match(tmp_path):
     assert result == {}
 
 
+def test_bash_event_strips_cmdmeta_before_x_matching(tmp_path):
+    """Content inside a CMD-META trailer must not trigger x: regexes."""
+    rules = {
+        "rm-rf-fact": {
+            "fact": "Destructive rm",
+            "incl": ["x:rm -rf"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    # Command is a benign `ls`; the string "rm -rf" appears only inside META.
+    command = (
+        "ls  # ---CMD-META-BEGIN---\n"
+        "# tools: ls\n"
+        "# affected_paths: tmp/that-was-rm -rf'd-last-week\n"
+        "# ---CMD-META-END---"
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "List files"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+    assert result == {}
+
+
 def test_bash_event_command_and_description_combined(tmp_path):
     """Fact with both x: and d: requires both to match."""
     rules = {
