@@ -24,7 +24,7 @@ ruff:
 	uv run ruff check .
 
 vulture:
-	uv run vulture lore/ scripts/vulture_whitelist.py --min-confidence 60 --exclude lore/matchers/find_tool_contexts_for_prefixes.py
+	uv run vulture lore/ scripts/vulture_whitelist.py --min-confidence 60 --exclude lore/store/find_tool_contexts_for_prefixes.py
 
 skylos:
 	@json=$$(uv run skylos . --json --secrets --confidence 80 --exclude-folder .claude-plugins-official --exclude-folder tests --exclude-folder scripts 2>/dev/null); \

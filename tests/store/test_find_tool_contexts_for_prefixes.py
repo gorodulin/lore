@@ -1,7 +1,7 @@
 import pytest
 from itertools import combinations
 
-from lore.matchers.find_tool_contexts_for_prefixes import find_tool_contexts_for_prefixes, PREFIX_TO_TOOL_CONTEXTS, ALL_PREFIXES
+from lore.store.find_tool_contexts_for_prefixes import find_tool_contexts_for_prefixes, PREFIX_TO_TOOL_CONTEXTS, ALL_PREFIXES
 
 
 def test_empty_prefixes_returns_empty():
