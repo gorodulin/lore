@@ -1,4 +1,4 @@
-from lore.store.build_fact_from_dict import build_fact_from_dict
+from lore.facts.build_fact_from_dict import build_fact_from_dict
 from lore.facts.find_matching_facts import find_matching_facts
 
 

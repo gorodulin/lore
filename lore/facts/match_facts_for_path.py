@@ -1,6 +1,6 @@
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
-from lore.store.build_fact_from_dict import build_fact_from_dict
+from lore.facts.build_fact_from_dict import build_fact_from_dict
 from lore.validation.validate_fact_set import validate_fact_set
 from lore.facts.find_matching_facts import find_matching_facts
 from lore.paths.resolve_relative_path import resolve_relative_path

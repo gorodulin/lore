@@ -1,7 +1,7 @@
 import re
 import pytest
 
-from lore.store.compile_matcher import compile_matcher
+from lore.matchers.compile_matcher import compile_matcher
 
 
 class TestCompileMatcher:

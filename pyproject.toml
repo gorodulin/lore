@@ -1,6 +1,6 @@
 [project]
 name = "lore"
-version = "0.4.1"
+version = "0.4.2"
 description = "Glob pattern matcher with relocation support"
 requires-python = ">=3.11"
 dependencies = ["fastmcp>=2.14"]

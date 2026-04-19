@@ -1,6 +1,6 @@
 import pytest
 
-from lore.store.build_matcher_string import build_matcher_string
+from lore.matchers.build_matcher_string import build_matcher_string
 
 
 class TestBuildMatcherString:
@@ -30,7 +30,7 @@ class TestBuildMatcherString:
         assert build_matcher_string("path", "path with spaces/file.txt") == "p:path with spaces/file.txt"
 
     def test_roundtrip_path(self):
-        from lore.store.parse_matcher_string import parse_matcher_string
+        from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "p:src/**/*.ts"
         matcher_type, value = parse_matcher_string(original)
@@ -38,7 +38,7 @@ class TestBuildMatcherString:
         assert rebuilt == original
 
     def test_roundtrip_content(self):
-        from lore.store.parse_matcher_string import parse_matcher_string
+        from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "c:.*\\.js$"
         matcher_type, value = parse_matcher_string(original)
@@ -46,7 +46,7 @@ class TestBuildMatcherString:
         assert rebuilt == original
 
     def test_roundtrip_description(self):
-        from lore.store.parse_matcher_string import parse_matcher_string
+        from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "d:(?i)install|remove"
         matcher_type, value = parse_matcher_string(original)
@@ -54,7 +54,7 @@ class TestBuildMatcherString:
         assert rebuilt == original
 
     def test_roundtrip_command(self):
-        from lore.store.parse_matcher_string import parse_matcher_string
+        from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "x:\\|\\s*sh"
         matcher_type, value = parse_matcher_string(original)

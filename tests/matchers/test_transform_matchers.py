@@ -1,4 +1,4 @@
-from lore.store.transform_matchers import transform_matchers
+from lore.matchers.transform_matchers import transform_matchers
 
 
 class TestTransformMatchers:

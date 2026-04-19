@@ -1,5 +1,5 @@
-from lore.store.build_dict_from_fact import build_dict_from_fact
-from lore.store.build_fact_from_dict import build_fact_from_dict
+from lore.facts.build_dict_from_fact import build_dict_from_fact
+from lore.facts.build_fact_from_dict import build_fact_from_dict
 
 
 class TestBuildDictFromFact:

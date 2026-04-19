@@ -1,6 +1,6 @@
 from lore.facts.fact import Fact
 from lore.facts.matcher_set import MatcherSet
-from lore.store.build_strings_from_matcher_set import build_strings_from_matcher_set
+from lore.facts.build_strings_from_matcher_set import build_strings_from_matcher_set
 
 
 def build_dict_from_fact(fact: Fact) -> dict:

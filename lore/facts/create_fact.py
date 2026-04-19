@@ -5,11 +5,11 @@ from lore.facts.generate_fact_id import generate_fact_id
 from lore.paths.compute_rel_dir import compute_rel_dir
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
 from lore.store.validate_fact_structure import validate_fact_structure
-from lore.store.transform_matchers import transform_matchers
+from lore.matchers.transform_path_matchers import transform_path_matchers
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.load_facts_file import load_facts_file
 from lore.store.save_facts_file import save_facts_file
-from lore.globs.compute_common_dir_from_matchers import compute_common_dir_from_matchers
+from lore.matchers.compute_common_dir_from_matchers import compute_common_dir_from_matchers
 from lore.globs.relativize_glob_to_root import relativize_glob_to_root
 from lore.validation.validate_skip_matchers_scope import validate_skip_matchers_scope
 from lore.errors.create_error import create_error
@@ -81,9 +81,8 @@ def create_fact(root_dir: str, fact_text: str, incl: list[str], skip: list[str] 
     target_dir = compute_common_dir_from_matchers(incl)
 
     # 6. Relativize patterns to target directory
-    transforms = {"path": lambda v: relativize_glob_to_root(v, target_dir)}
-    local_incl = transform_matchers(incl, transforms)
-    local_skip = transform_matchers(skip, transforms) if skip else []
+    local_incl = transform_path_matchers(incl, lambda v: relativize_glob_to_root(v, target_dir))
+    local_skip = transform_path_matchers(skip, lambda v: relativize_glob_to_root(v, target_dir)) if skip else []
 
     # 7. Build local fact
     local_fact = {"fact": fact_text, "incl": local_incl}

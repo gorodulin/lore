@@ -1,5 +1,5 @@
-from lore.store.parse_matcher_string import parse_matcher_string
-from lore.store.build_matcher_string import build_matcher_string
+from lore.matchers.parse_matcher_string import parse_matcher_string
+from lore.matchers.build_matcher_string import build_matcher_string
 
 
 def transform_matchers(matchers: list[str], transforms: dict) -> list[str]:

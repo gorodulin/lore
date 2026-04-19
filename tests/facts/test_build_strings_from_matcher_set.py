@@ -1,5 +1,5 @@
-from lore.store.build_strings_from_matcher_set import build_strings_from_matcher_set
-from lore.store.build_matcher_set_from_strings import build_matcher_set_from_strings
+from lore.facts.build_strings_from_matcher_set import build_strings_from_matcher_set
+from lore.facts.build_matcher_set_from_strings import build_matcher_set_from_strings
 from lore.facts.matcher_set import MatcherSet
 
 

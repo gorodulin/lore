@@ -1,4 +1,4 @@
-from lore.store.parse_matcher_string import VALID_PREFIXES
+from lore.matchers.parse_matcher_string import VALID_PREFIXES
 
 _TYPE_TO_PREFIX = {v: k for k, v in VALID_PREFIXES.items()}
 

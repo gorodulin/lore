@@ -1,6 +1,6 @@
 from lore.facts.matcher_set import MatcherSet
-from lore.store.compile_matcher import compile_matcher
-from lore.store.parse_matcher_string import parse_matcher_string
+from lore.matchers.compile_matcher import compile_matcher
+from lore.matchers.parse_matcher_string import parse_matcher_string
 
 
 def build_matcher_set_from_strings(matchers: list[str]) -> MatcherSet:

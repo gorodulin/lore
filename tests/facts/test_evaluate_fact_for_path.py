@@ -1,4 +1,4 @@
-from lore.store.build_fact_from_dict import build_fact_from_dict
+from lore.facts.build_fact_from_dict import build_fact_from_dict
 from lore.facts.evaluate_fact_for_path import evaluate_fact_for_path
 
 

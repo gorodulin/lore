@@ -1,4 +1,4 @@
-from lore.globs.compute_common_dir_from_matchers import compute_common_dir_from_matchers
+from lore.matchers.compute_common_dir_from_matchers import compute_common_dir_from_matchers
 
 
 def test_single_glob_pattern():

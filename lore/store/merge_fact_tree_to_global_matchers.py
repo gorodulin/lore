@@ -1,5 +1,5 @@
 from lore.globs.prepend_glob_prefix import prepend_glob_prefix
-from lore.store.transform_matchers import transform_matchers
+from lore.matchers.transform_path_matchers import transform_path_matchers
 
 
 def merge_fact_tree_to_global_matchers(fact_files: list[dict]) -> dict[str, dict]:
@@ -42,14 +42,17 @@ def merge_fact_tree_to_global_matchers(fact_files: list[dict]) -> dict[str, dict
 
 def _prefix_fact_matchers(fact: dict, prefix_dir: str) -> dict:
     """Create a copy of fact with glob matchers prefixed."""
-    transforms = {"path": lambda v: prepend_glob_prefix(v, prefix_dir)}
     result = {"fact": fact.get("fact", "")}
 
     if "incl" in fact:
-        result["incl"] = transform_matchers(fact["incl"], transforms)
+        result["incl"] = transform_path_matchers(
+            fact["incl"], lambda v: prepend_glob_prefix(v, prefix_dir)
+        )
 
     if "skip" in fact:
-        result["skip"] = transform_matchers(fact["skip"], transforms)
+        result["skip"] = transform_path_matchers(
+            fact["skip"], lambda v: prepend_glob_prefix(v, prefix_dir)
+        )
 
     if "tags" in fact:
         result["tags"] = list(fact["tags"])

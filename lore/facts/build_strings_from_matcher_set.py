@@ -1,5 +1,5 @@
 from lore.facts.matcher_set import MatcherSet
-from lore.store.build_matcher_string import build_matcher_string
+from lore.matchers.build_matcher_string import build_matcher_string
 
 
 def build_strings_from_matcher_set(matcher_set: MatcherSet) -> list[str]:

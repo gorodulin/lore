@@ -3,11 +3,6 @@
     "fact": "All imports must be at the top of the file (no indented imports). Move inline imports to module level.",
     "incl": ["c:^\\s+import\\s+\\w", "p:**/*.py"]
   },
-  "8qL2mP9kNx": {
-    "fact": "Fact creation must auto-relocate to appropriate folder based on common parent of incl patterns",
-    "incl": ["p:facts/create_fact.py", "p:globs/compute_common_dir_from_matchers.py"],
-    "tags": ["kind:design"]
-  },
   "DaEC5FQP2v": {
     "fact": "Keep terms distinct: \"matcher\" = prefixed string (g:…, r:…). \"glob_pattern\" = raw value after prefix (**/*.py). Use \"glob_pattern\" not bare \"pattern\" for unprefixed glob values.",
     "incl": ["c:matcher|[^\\w]glob[^_\\w]|[^b]_pattern|[^_]pattern", "p:**/*.py"],
@@ -42,11 +37,6 @@
     "fact": "Test fact for folders",
     "incl": ["p:**/"],
     "skip": ["p:**/globs/"]
-  },
-  "otH1mpeZiP": {
-    "fact": "Glob patterns are directory-relative. merge_fact_tree_to_global_matchers globalizes at load; create_fact relativizes at write. Preserve this round-trip.",
-    "incl": ["p:facts/create_fact.py", "p:globs/**/*.py", "p:store/merge_fact_tree_to_global_matchers.py"],
-    "skip": ["p:globs/compute_common_dir_from_matchers.py"]
   },
   "pGvwDm9XJa": {
     "fact": "Ensure this file semantically belongs in its folder — the namespace should reflect its purpose, not just mechanical grouping.",

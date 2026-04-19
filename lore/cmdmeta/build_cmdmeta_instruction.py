@@ -68,7 +68,7 @@ def build_cmdmeta_instruction(errors: tuple[str, ...]) -> str:
         "Required field: tools (comma-separated recognised command entry-points, "
         'e.g. "git push", "kubectl apply", "psql"). An empty list is allowed '
         "for trivial commands but the field must appear.\n"
-        "Optional fields: endpoints (URLs / hosts / SSH targets), "
+        "Optional (when non-applicable) fields: endpoints (URLs / hosts / SSH targets), "
         "affected_paths (files or globs the command writes to), flags "
         "(any that apply from the vocabulary below)."
     )

@@ -4,8 +4,8 @@ from lore.facts.fact import Fact
 from lore.store.load_facts_tree import load_facts_tree
 from lore.store.load_facts_file import load_facts_file
 from lore.store.merge_fact_tree_to_global_matchers import merge_fact_tree_to_global_matchers
-from lore.store.build_fact_from_dict import build_fact_from_dict
-from lore.store.build_dict_from_fact import build_dict_from_fact
+from lore.facts.build_fact_from_dict import build_fact_from_dict
+from lore.facts.build_dict_from_fact import build_dict_from_fact
 from lore.validation.validate_fact_set import validate_fact_set
 from lore.facts.find_matching_facts import find_matching_facts
 from lore.facts.create_fact import create_fact as create_fact_on_disk

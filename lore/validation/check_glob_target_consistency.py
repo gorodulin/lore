@@ -1,4 +1,4 @@
-from lore.store.parse_matcher_string import parse_matcher_string
+from lore.matchers.parse_matcher_string import parse_matcher_string
 from lore.globs.compile_glob_pattern import compile_glob_pattern
 
 

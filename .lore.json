@@ -48,12 +48,6 @@
     "incl": ["c:(?m)^\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n\\s+\"[^\"]*\"\\n", "p:**/*.py"],
     "skip": ["p:tests/**/*.py"]
   },
-  "ICZss22RQP": {
-    "fact": "Prefix strings (g:…, r:…) are a serialization detail owned by store/. Code here should work with typed Fact/MatcherSet fields instead.",
-    "incl": ["c:from lore\\.store\\..*matcher_string.* import", "p:**/*.py"],
-    "skip": ["p:store/**"],
-    "tags": ["kind:convention"]
-  },
   "Kb2CxQd0q0": {
     "fact": "Add a blank line before the first item of every list",
     "incl": ["c:^[^\\d*-].*\\n(\\d+\\. |[-*] )", "p:**/*.md"]
