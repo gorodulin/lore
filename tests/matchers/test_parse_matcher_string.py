@@ -24,6 +24,12 @@ class TestParseMatcher:
     def test_command_matcher(self):
         assert parse_matcher_string("x:rm -rf") == ("command", "rm -rf")
 
+    def test_tool_matcher(self):
+        assert parse_matcher_string("t:git push") == ("tool", "git push")
+
+    def test_tool_matcher_with_regex(self):
+        assert parse_matcher_string("t:kubectl|helm") == ("tool", "kubectl|helm")
+
     def test_string_matcher(self):
         assert parse_matcher_string("s:exact/path.txt") == ("string", "exact/path.txt")
 

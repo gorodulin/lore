@@ -8,3 +8,4 @@ class MatcherSet:
     content_regexes: tuple[re.Pattern, ...] = ()
     description_regexes: tuple[re.Pattern, ...] = ()
     command_regexes: tuple[re.Pattern, ...] = ()
+    tool_regexes: tuple[re.Pattern, ...] = ()

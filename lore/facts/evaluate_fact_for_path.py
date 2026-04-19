@@ -5,13 +5,7 @@ from lore.facts.matcher_set import MatcherSet
 from lore.matchers.match_path_to_glob import match_path_to_glob
 
 
-def evaluate_fact_for_path(
-    fact: Fact,
-    path: str,
-    content: str | None = None,
-    description: str | None = None,
-    command: str | None = None,
-) -> bool:
+def evaluate_fact_for_path(fact: Fact, path: str, content: str | None = None, description: str | None = None, command: str | None = None, tools: tuple[str, ...] | None = None) -> bool:
     """Test if a tool event matches a typed Fact.
 
     Within each MatcherSet, matchers of the same target OR together,
@@ -31,14 +25,17 @@ def evaluate_fact_for_path(
         content: Optional content to test content regexes against.
         description: Optional description text to test description regexes against.
         command: Optional raw command text to test command regexes against.
+        tools: Optional per-item tool entries from CMD-META. Each ``t:``
+            regex is tested against every entry; the group matches if
+            any entry matches any regex.
 
     Returns:
         True if the event matches the fact, False otherwise.
     """
-    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description, command):
+    if _has_matchers(fact.skip) and _matches_matcher_set(fact.skip, path, content, description, command, tools):
         return False
 
-    return _matches_matcher_set(fact.incl, path, content, description, command)
+    return _matches_matcher_set(fact.incl, path, content, description, command, tools)
 
 
 def _has_matchers(matcher_set: MatcherSet) -> bool:
@@ -48,22 +45,18 @@ def _has_matchers(matcher_set: MatcherSet) -> bool:
         or matcher_set.content_regexes
         or matcher_set.description_regexes
         or matcher_set.command_regexes
+        or matcher_set.tool_regexes
     )
 
 
-def _matches_matcher_set(
-    matcher_set: MatcherSet,
-    path: str,
-    content: str | None,
-    description: str | None,
-    command: str | None,
-) -> bool:
+def _matches_matcher_set(matcher_set: MatcherSet, path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None) -> bool:
     """Check if an event matches a MatcherSet."""
     return (
         _check_path_globs(matcher_set.path_globs, path)
         and _check_text_regexes(matcher_set.content_regexes, content)
         and _check_text_regexes(matcher_set.description_regexes, description)
         and _check_text_regexes(matcher_set.command_regexes, command)
+        and _check_any_regex_in_items(matcher_set.tool_regexes, tools)
     )
 
 
@@ -86,3 +79,18 @@ def _check_text_regexes(regexes: tuple[re.Pattern, ...], text: str | None) -> bo
     if text is None:
         return False
     return any(r.search(text) for r in regexes)
+
+
+def _check_any_regex_in_items(regexes: tuple[re.Pattern, ...], items: tuple[str, ...] | None) -> bool:
+    """Per-item any-any check: True if any regex matches any item.
+
+    Empty regexes group = vacuously true. ``items is None`` means the
+    event type provides no source for this target (decision 10): False.
+    Empty items tuple means the source is present but carries nothing,
+    so no item can satisfy any regex: also False.
+    """
+    if not regexes:
+        return True
+    if items is None:
+        return False
+    return any(r.search(item) for r in regexes for item in items)

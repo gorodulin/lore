@@ -97,3 +97,26 @@ class TestFindMatchingFacts:
 
         result = find_matching_facts(facts, "src/api/")
         assert "f1" in result
+
+    def test_tools_filtering(self):
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "Git push", "incl": ["t:git push"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "Kubectl", "incl": ["t:kubectl"]}),
+        }
+
+        result = find_matching_facts(facts, "", tools=("git push",))
+        assert result == ["f1"]
+
+        result = find_matching_facts(facts, "", tools=("kubectl apply",))
+        assert result == ["f2"]
+
+    def test_tools_none_filters_out_tool_facts(self):
+        facts = {
+            "f1": build_fact_from_dict("f1", {"fact": "Git push", "incl": ["t:git push"]}),
+            "f2": build_fact_from_dict("f2", {"fact": "All PY", "incl": ["p:**/*.py"]}),
+        }
+
+        # File event (no tools): t: fact must not fire; p: fact must.
+        result = find_matching_facts(facts, "src/app.py", tools=None)
+        assert "f1" not in result
+        assert "f2" in result

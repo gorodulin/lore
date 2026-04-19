@@ -204,3 +204,83 @@ class TestEvaluateFactForPath:
         })
         assert evaluate_fact_for_path(fact, "", command="rm -rf cache/") is True
         assert evaluate_fact_for_path(fact, "", command="rm -i old.txt") is False
+
+    # --- Tool regex matcher tests (t:) — per-item against meta.tools ---
+
+    def test_tool_only_single_entry_match(self):
+        fact = _build({"fact": "Git push", "incl": ["t:git push"]})
+        assert evaluate_fact_for_path(fact, "", tools=("git push",)) is True
+
+    def test_tool_only_matches_among_multiple_entries(self):
+        fact = _build({"fact": "Git push", "incl": ["t:git push"]})
+        assert evaluate_fact_for_path(fact, "", tools=("echo", "git push", "ls")) is True
+
+    def test_tool_no_match_different_entry(self):
+        fact = _build({"fact": "Git push", "incl": ["t:git push"]})
+        assert evaluate_fact_for_path(fact, "", tools=("git commit",)) is False
+
+    def test_tool_none_means_no_source(self):
+        # Decision 10: tools=None on non-Bash events → False.
+        fact = _build({"fact": "Git push", "incl": ["t:git push"]})
+        assert evaluate_fact_for_path(fact, "", tools=None) is False
+
+    def test_tool_empty_tuple_means_nothing_to_match(self):
+        # Valid META for a trivial command: tools=() → no tool can satisfy t:.
+        fact = _build({"fact": "Any tool", "incl": ["t:.*"]})
+        assert evaluate_fact_for_path(fact, "", tools=()) is False
+
+    def test_tool_substring_regex_matches_entry(self):
+        # Decision 7: regex per-entry; substring search is the documented behavior.
+        fact = _build({"fact": "Push", "incl": ["t:push"]})
+        assert evaluate_fact_for_path(fact, "", tools=("git push",)) is True
+
+    def test_tool_regex_alternation_matches_any(self):
+        fact = _build({"fact": "k8s/helm", "incl": ["t:kubectl|helm"]})
+        assert evaluate_fact_for_path(fact, "", tools=("helm",)) is True
+        assert evaluate_fact_for_path(fact, "", tools=("kubectl apply",)) is True
+        assert evaluate_fact_for_path(fact, "", tools=("docker",)) is False
+
+    def test_multiple_tool_regexes_or(self):
+        fact = _build({"fact": "Destructive", "incl": ["t:git push", "t:kubectl apply"]})
+        assert evaluate_fact_for_path(fact, "", tools=("git push",)) is True
+        assert evaluate_fact_for_path(fact, "", tools=("kubectl apply",)) is True
+        assert evaluate_fact_for_path(fact, "", tools=("ls",)) is False
+
+    def test_tool_missing_on_file_event_means_no_match(self):
+        # Decision 10: no source on file events → False.
+        fact = _build({"fact": "Git push", "incl": ["t:git push"]})
+        assert evaluate_fact_for_path(fact, "src/app.py", content="anything") is False
+
+    def test_tool_combined_with_x_both_required(self):
+        fact = _build({"fact": "kubectl delete", "incl": ["t:kubectl", "x:delete"]})
+        assert evaluate_fact_for_path(
+            fact, "", command="kubectl delete pod foo", tools=("kubectl",)
+        ) is True
+        # Tools match but command doesn't.
+        assert evaluate_fact_for_path(
+            fact, "", command="kubectl get pod", tools=("kubectl",)
+        ) is False
+        # Command matches but tools don't.
+        assert evaluate_fact_for_path(
+            fact, "", command="kubectl delete pod foo", tools=("helm",)
+        ) is False
+
+    def test_tool_plus_content_never_fires(self):
+        # Two-worlds invariant: c: requires file content, t: requires Bash+META.
+        # No event carries both, so the fact is structurally dead.
+        fact = _build({"fact": "Dead", "incl": ["t:git push", "c:import"]})
+        # File event: tools=None → False.
+        assert evaluate_fact_for_path(fact, "src/app.py", content="import os") is False
+        # Bash event: content=None → False.
+        assert evaluate_fact_for_path(fact, "", tools=("git push",), command="git push") is False
+
+    def test_skip_tool_excludes(self):
+        fact = _build({
+            "fact": "Bash warnings",
+            "incl": ["x:."],
+            "skip": ["t:echo"],
+        })
+        # echo tool is in the skip list → excluded even though x: matches.
+        assert evaluate_fact_for_path(fact, "", command="echo hi", tools=("echo",)) is False
+        # git commit isn't excluded.
+        assert evaluate_fact_for_path(fact, "", command="git commit", tools=("git commit",)) is True

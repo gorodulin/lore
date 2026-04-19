@@ -112,3 +112,38 @@ def test_tags_preserved(tmp_path):
 
     result = match_facts_for_path(str(tmp_path), "src/main.py")
     assert result["tagged"]["tags"] == ["hook:read"]
+
+
+def test_tools_param_matches_tool_fact(tmp_path):
+    rules = {
+        "git-push": {
+            "fact": "Git push is risky",
+            "incl": ["t:git push"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    result = match_facts_for_path(str(tmp_path), "", tools=("git push",))
+    assert "git-push" in result
+
+    result = match_facts_for_path(str(tmp_path), "", tools=("ls",))
+    assert result == {}
+
+
+def test_tools_none_skips_tool_fact(tmp_path):
+    rules = {
+        "git-push": {
+            "fact": "Git push is risky",
+            "incl": ["t:git push"],
+        },
+        "py-files": {
+            "fact": "Python files",
+            "incl": ["p:**/*.py"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    # File event: t: fact must not fire (decision 10).
+    result = match_facts_for_path(str(tmp_path), "src/app.py")
+    assert "git-push" not in result
+    assert "py-files" in result

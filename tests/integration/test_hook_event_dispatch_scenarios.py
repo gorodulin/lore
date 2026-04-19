@@ -14,6 +14,9 @@ import json
 import pytest
 
 from lore.claude.dispatch_hook_event import dispatch_hook_event
+from tests.test_helpers.build_bash_command_with_cmdmeta import (
+    build_bash_command_with_cmdmeta,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -197,6 +200,51 @@ class TestBashEventDispatch:
         }, tmp_path)
 
         assert response.get("hookSpecificOutput", {}).get("permissionDecision") != "deny"
+
+    def test_bash_t_fact_fires_on_tools_entry(self, tmp_path):
+        _write(tmp_path / ".lore.json", json.dumps({
+            "git-push-block": {
+                "fact": "Force push to shared branches requires team notice",
+                "incl": ["t:git push"],
+                "tags": ["hook:bash", "action:block"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta(
+            "git push origin main --force",
+            tools=("git push",),
+            flags=("mutates", "network", "irreversible", "blast_remote"),
+        )
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-t-1",
+            "tool_input": {"command": cmd, "description": "Push feature"},
+        }, tmp_path)
+
+        out = response["hookSpecificOutput"]
+        assert out["permissionDecision"] == "deny"
+        assert "Force push to shared branches" in out["permissionDecisionReason"]
+
+    def test_bash_t_fact_does_not_fire_when_tool_absent(self, tmp_path):
+        """t: matcher on 'git push' must not fire when tools entry is 'ls'."""
+        _write(tmp_path / ".lore.json", json.dumps({
+            "git-push-block": {
+                "fact": "Force push requires team notice",
+                "incl": ["t:git push"],
+                "tags": ["hook:bash", "action:block"],
+            },
+        }))
+        cmd = build_bash_command_with_cmdmeta("ls -la", tools=("ls",))
+        response = _dispatch({
+            "hook_event_name": "PreToolUse",
+            "tool_name": "Bash",
+            "session_id": "bash-t-2",
+            "tool_input": {"command": cmd, "description": "List files"},
+        }, tmp_path)
+
+        # Gate passes (valid META) and no t: fact matches → collector returns {}.
+        assert response.get("hookSpecificOutput", {}).get("permissionDecision") != "deny"
+        assert "additionalContext" not in response.get("hookSpecificOutput", {})
 
     def test_bash_invalid_flag_reports_vocabulary(self, tmp_path):
         _write(tmp_path / ".lore.json", json.dumps({}))

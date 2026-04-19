@@ -68,6 +68,29 @@ def test_find_matching_facts_with_content(tmp_path):
     assert result == {}
 
 
+def test_find_matching_facts_with_tools(tmp_path):
+    facts = {
+        "git-push": {
+            "fact": "Git push is risky",
+            "incl": ["t:git push"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(facts))
+
+    store = FactStore(str(tmp_path))
+    store.load_all_facts()
+
+    result = store.find_matching_facts("", tools=("git push",))
+    assert "git-push" in result
+
+    result = store.find_matching_facts("", tools=("ls",))
+    assert result == {}
+
+    # File event with no tools source → t: fact must not fire.
+    result = store.find_matching_facts("src/app.py")
+    assert "git-push" not in result
+
+
 def test_refresh_facts_detects_mtime_change(tmp_path):
     facts = {"f1": {"fact": "Original", "incl": ["p:**/*.py"]}}
     facts_file = tmp_path / ".lore.json"

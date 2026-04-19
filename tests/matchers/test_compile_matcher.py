@@ -30,6 +30,17 @@ class TestCompileMatcher:
         assert isinstance(result, re.Pattern)
         assert result.search("rm -rf /tmp/cache") is not None
 
+    def test_compile_tool(self):
+        result = compile_matcher("tool", "git push")
+        assert isinstance(result, re.Pattern)
+        assert result.search("git push") is not None
+
+    def test_compile_tool_regex(self):
+        result = compile_matcher("tool", "kubectl|helm")
+        assert result.search("kubectl") is not None
+        assert result.search("helm") is not None
+        assert result.search("docker") is None
+
     def test_unknown_type_raises(self):
         with pytest.raises(ValueError, match="Unknown matcher type"):
             compile_matcher("unknown", "value")

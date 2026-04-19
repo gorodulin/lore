@@ -5,9 +5,7 @@ import traceback
 from lore.claude.match_facts_for_path import match_facts_for_path
 from lore.claude.filter_facts_by_hook_tag import filter_facts_by_hook_tag
 from lore.claude.filter_facts_by_display_rate import filter_facts_by_display_rate
-from lore.cmdmeta.extract_cmdmeta_block import extract_cmdmeta_block
-from lore.cmdmeta.parse_cmdmeta_block import CmdMetaParseError, parse_cmdmeta_block
-from lore.cmdmeta.validate_cmdmeta import validate_cmdmeta
+from lore.cmdmeta.resolve_cmdmeta_for_command import resolve_cmdmeta_for_command
 from lore.facts.build_fact_render_context import build_fact_render_context
 from lore.facts.render_fact_text import render_fact_text
 from lore.client.try_send_fact_request import try_send_fact_request
@@ -37,16 +35,17 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         description = tool_input.get("description") or tool_input.get("query") or None
 
         raw_command = tool_input.get("command", "")
-        bare_command = _resolve_bare_command(raw_command)
-        if bare_command is None:
+        resolution = resolve_cmdmeta_for_command(raw_command)
+        if resolution.errors:
             return {}
-        command = bare_command or None
+        command = resolution.bare_command or None
+        tools = resolution.meta.tools if resolution.meta is not None else None
 
         if not file_path and not description and not command:
             return {}
 
         content = _resolve_content(event_data, file_path, project_root) if file_path else None
-        facts = _find_facts_via_server(project_root, file_path, content, description, command, hook_tag)
+        facts = _find_facts_via_server(project_root, file_path, content, description, command, tools, hook_tag)
         if not facts:
             return {}
 
@@ -83,35 +82,7 @@ def collect_facts_for_tool_event(event_data: dict, *, project_root: str, log_pat
         return {}
 
 
-def _resolve_bare_command(raw_command: str) -> str | None:
-    """Return the META-stripped command for ``x:`` matching, or ``None`` to skip.
-
-    Non-Bash events arrive with ``raw_command`` empty — returns ``""``
-    so the caller knows there's no command to match on.
-
-    Bash events carry a CMD-META trailer; the gate handler
-    (:mod:`lore.claude.check_bash_cmdmeta`) has already denied malformed
-    blocks before this point. Returning ``None`` asks the caller to
-    suppress further output: the gate's deny payload is already queued
-    and we don't want to layer ``additionalContext`` on top of it.
-    """
-    bare_command, block_text = extract_cmdmeta_block(raw_command)
-
-    if block_text is None:
-        return bare_command
-
-    try:
-        meta = parse_cmdmeta_block(block_text)
-    except CmdMetaParseError:
-        return None
-
-    if validate_cmdmeta(meta):
-        return None
-
-    return bare_command
-
-
-def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, hook_tag: str | None) -> dict[str, dict]:
+def _find_facts_via_server(project_root: str, file_path: str, content: str | None, description: str | None, command: str | None, tools: tuple[str, ...] | None, hook_tag: str | None) -> dict[str, dict]:
     """Try the lore server first, fall back to in-process matching."""
     params = {}
     if file_path:
@@ -122,13 +93,15 @@ def _find_facts_via_server(project_root: str, file_path: str, content: str | Non
         params["description"] = description
     if command is not None:
         params["command"] = command
+    if tools is not None:
+        params["tools"] = list(tools)
     if hook_tag is not None:
         params["tags"] = [hook_tag]
     result = try_send_fact_request(project_root, "find_facts", params)
     if result is not None:
         return result
     # Fallback: in-process
-    facts = match_facts_for_path(project_root, file_path, content=content, description=description, command=command)
+    facts = match_facts_for_path(project_root, file_path, content=content, description=description, command=command, tools=tools)
     return filter_facts_by_hook_tag(facts, hook_tag)
 
 

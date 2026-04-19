@@ -79,3 +79,26 @@ class TestBuildStringsFromMatcherSet:
             "d:(?i)deploy",
             "x:rm -rf",
         ]
+
+    def test_tool_only(self):
+        ms = build_matcher_set_from_strings(["t:git push"])
+        assert build_strings_from_matcher_set(ms) == ["t:git push"]
+
+    def test_canonical_order_all_five_types(self):
+        """Serialization order: path, content, description, command, tool."""
+        ms = build_matcher_set_from_strings(
+            ["t:git push", "x:rm -rf", "d:(?i)deploy", "c:import os", "p:**/*.py"]
+        )
+        result = build_strings_from_matcher_set(ms)
+        assert result == [
+            "p:**/*.py",
+            "c:import os",
+            "d:(?i)deploy",
+            "x:rm -rf",
+            "t:git push",
+        ]
+
+    def test_roundtrip_tool(self):
+        original = ["t:kubectl|helm"]
+        ms = build_matcher_set_from_strings(original)
+        assert build_strings_from_matcher_set(ms) == original

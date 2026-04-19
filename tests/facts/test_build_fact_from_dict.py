@@ -47,3 +47,14 @@ class TestBuildFactFromDict:
         raw = {"fact": "Test", "incl": ["p:**"], "skip": []}
         result = build_fact_from_dict("f5", raw)
         assert result.skip == MatcherSet()
+
+    def test_with_tool_matchers(self):
+        raw = {
+            "fact": "Git push is risky",
+            "incl": ["t:git push", "t:kubectl apply"],
+        }
+        result = build_fact_from_dict("f6", raw)
+        assert result.incl.path_globs == ()
+        assert len(result.incl.tool_regexes) == 2
+        assert result.incl.tool_regexes[0].pattern == "git push"
+        assert result.incl.tool_regexes[1].pattern == "kubectl apply"

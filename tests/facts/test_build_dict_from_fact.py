@@ -54,3 +54,23 @@ class TestBuildDictFromFact:
         fact = build_fact_from_dict("f6", raw)
         result = build_dict_from_fact(fact)
         assert result == raw
+
+    def test_roundtrip_tool_matcher(self):
+        raw = {
+            "fact": "Git push is risky",
+            "incl": ["t:git push"],
+            "tags": ["hook:bash"],
+        }
+        fact = build_fact_from_dict("f7", raw)
+        result = build_dict_from_fact(fact)
+        assert result == raw
+
+    def test_roundtrip_mixed_including_tool(self):
+        # Canonical order: p, c, d, x, t.
+        raw = {
+            "fact": "Complex fact",
+            "incl": ["p:src/**", "d:(?i)deploy", "x:kubectl.*apply", "t:kubectl"],
+        }
+        fact = build_fact_from_dict("f8", raw)
+        result = build_dict_from_fact(fact)
+        assert result == raw

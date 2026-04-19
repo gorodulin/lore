@@ -75,3 +75,28 @@ class TestBuildMatcherSetFromStrings:
     def test_command_regex_compiled_multiline(self):
         result = build_matcher_set_from_strings(["x:^rm"])
         assert result.command_regexes[0].flags & re.MULTILINE
+
+    def test_tool_only(self):
+        result = build_matcher_set_from_strings(["t:git push"])
+        assert result.path_globs == ()
+        assert result.content_regexes == ()
+        assert result.description_regexes == ()
+        assert result.command_regexes == ()
+        assert len(result.tool_regexes) == 1
+        assert result.tool_regexes[0].pattern == "git push"
+
+    def test_tool_multiple(self):
+        result = build_matcher_set_from_strings(["t:kubectl apply", "t:helm install"])
+        assert len(result.tool_regexes) == 2
+        assert result.tool_regexes[0].pattern == "kubectl apply"
+        assert result.tool_regexes[1].pattern == "helm install"
+
+    def test_tool_regex_compiled_multiline(self):
+        result = build_matcher_set_from_strings(["t:^git"])
+        assert result.tool_regexes[0].flags & re.MULTILINE
+
+    def test_tool_mixed_with_other_prefixes(self):
+        result = build_matcher_set_from_strings(["p:**/*.py", "t:git push", "d:(?i)deploy"])
+        assert len(result.path_globs) == 1
+        assert len(result.tool_regexes) == 1
+        assert len(result.description_regexes) == 1

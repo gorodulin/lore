@@ -32,6 +32,25 @@ def test_find_facts_missing_file_path(tmp_path):
         handle_fact_request(store, "find_facts", {})
 
 
+def test_find_facts_by_tools_only(tmp_path):
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Git push is risky", "incl": ["t:git push"]},
+    })
+    result = handle_fact_request(store, "find_facts", {"tools": ["git push"]})
+    assert "f1" in result
+
+
+def test_find_facts_tools_list_forwarded_as_tuple(tmp_path):
+    """RPC receives tools as a JSON array; handler must pass it through per-item."""
+    store = _make_store(tmp_path, {
+        "f1": {"fact": "Kubectl apply", "incl": ["t:kubectl apply"]},
+    })
+    result = handle_fact_request(
+        store, "find_facts", {"tools": ["echo", "kubectl apply"]}
+    )
+    assert "f1" in result
+
+
 def test_read_fact(tmp_path):
     store = _make_store(tmp_path, {"f1": {"fact": "Py", "incl": ["p:**/*.py"]}})
     result = handle_fact_request(store, "read_fact", {"fact_id": "f1"})

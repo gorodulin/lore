@@ -2,7 +2,7 @@
   "0cfDHqhfgS": {
     "fact": "Claude-specific code must live in lore/claude/**/* files. Do not introduce Claude references elsewhere.",
     "incl": ["c:(?i)claude", "p:**/*.py"],
-    "skip": ["p:bin/handle_claude_hook", "p:lore/claude/**/*", "p:tests/claude/**/*"],
+    "skip": ["p:bin/handle_claude_hook", "p:lore/claude/**/*", "p:tests/claude/**/*", "p:tests/integration/**/*"],
     "tags": ["action:block", "hook:edit", "hook:write"]
   },
   "2nJ8qK4rPs": {

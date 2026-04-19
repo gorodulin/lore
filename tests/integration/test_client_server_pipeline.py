@@ -195,3 +195,24 @@ async def test_find_rejects_request_without_any_event_field(tmp_path):
             )
     finally:
         await _stop_server(task)
+
+
+@pytest.mark.asyncio
+async def test_find_with_tools_matches_t_fact(tmp_path):
+    """tools param over the wire fires a t: fact per-item."""
+    task, socket_path = await _start_server(tmp_path, facts={
+        "git-push-rule": {
+            "fact": "Force push requires review",
+            "incl": ["t:git push"],
+            "tags": ["hook:bash"],
+        },
+    })
+    try:
+        result = await send_fact_request_async(
+            socket_path, "find_facts",
+            {"tools": ["echo", "git push"]},
+            5.0, project_root=str(tmp_path),
+        )
+        assert "git-push-rule" in result
+    finally:
+        await _stop_server(task)

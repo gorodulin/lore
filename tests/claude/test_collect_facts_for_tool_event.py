@@ -1,6 +1,9 @@
 import json
 
 from lore.claude.collect_facts_for_tool_event import collect_facts_for_tool_event
+from tests.test_helpers.build_bash_command_with_cmdmeta import (
+    build_bash_command_with_cmdmeta,
+)
 
 
 def test_returns_additional_context_with_facts(tmp_path):
@@ -528,6 +531,83 @@ def test_websearch_event_matches_query_as_description(tmp_path):
 
     ctx = result["hookSpecificOutput"]["additionalContext"]
     assert "Check wiki.internal before web search" in ctx
+
+
+def test_bash_event_matches_tool_regex_via_cmdmeta(tmp_path):
+    """PreToolUse/Bash: t: matcher fires on meta.tools entry."""
+    rules = {
+        "git-push": {
+            "fact": "Force push is destructive",
+            "incl": ["t:git push"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    command = build_bash_command_with_cmdmeta(
+        "git push origin main",
+        tools=("git push",),
+        flags=("mutates", "network"),
+    )
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "Push branch"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+
+    ctx = result["hookSpecificOutput"]["additionalContext"]
+    assert "Force push is destructive" in ctx
+
+
+def test_bash_event_tool_fact_does_not_fire_when_tool_absent(tmp_path):
+    """t: fact with 'git push' must not match when meta.tools is just 'echo'."""
+    rules = {
+        "git-push": {
+            "fact": "Force push is destructive",
+            "incl": ["t:git push"],
+            "tags": ["hook:bash"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    command = build_bash_command_with_cmdmeta("echo hi", tools=("echo",))
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "Bash",
+        "tool_input": {"command": command, "description": "Echo"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:bash"
+    )
+    assert result == {}
+
+
+def test_non_bash_event_does_not_fire_tool_fact(tmp_path):
+    """Decision 10: tools=None on non-Bash events → t: fact must not fire."""
+    rules = {
+        "git-push": {
+            "fact": "Git push fact",
+            "incl": ["t:git push"],
+        },
+    }
+    (tmp_path / ".lore.json").write_text(json.dumps(rules))
+
+    # WebSearch event — no tools source at all.
+    event = {
+        "hook_event_name": "PreToolUse",
+        "tool_name": "WebSearch",
+        "tool_input": {"query": "git push failing"},
+    }
+
+    result = collect_facts_for_tool_event(
+        event, project_root=str(tmp_path), log_path="", hook_tag="hook:websearch"
+    )
+    assert result == {}
 
 
 def test_action_block_mixed_with_non_blocking_on_pretooluse(tmp_path):

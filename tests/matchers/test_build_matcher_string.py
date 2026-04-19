@@ -16,6 +16,9 @@ class TestBuildMatcherString:
     def test_command_type(self):
         assert build_matcher_string("command", "rm -rf") == "x:rm -rf"
 
+    def test_tool_type(self):
+        assert build_matcher_string("tool", "git push") == "t:git push"
+
     def test_string_type(self):
         assert build_matcher_string("string", "exact/path.txt") == "s:exact/path.txt"
 
@@ -57,6 +60,14 @@ class TestBuildMatcherString:
         from lore.matchers.parse_matcher_string import parse_matcher_string
 
         original = "x:\\|\\s*sh"
+        matcher_type, value = parse_matcher_string(original)
+        rebuilt = build_matcher_string(matcher_type, value)
+        assert rebuilt == original
+
+    def test_roundtrip_tool(self):
+        from lore.matchers.parse_matcher_string import parse_matcher_string
+
+        original = "t:kubectl|helm"
         matcher_type, value = parse_matcher_string(original)
         rebuilt = build_matcher_string(matcher_type, value)
         assert rebuilt == original

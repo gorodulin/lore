@@ -5,6 +5,7 @@ VALID_PREFIXES = {
     "c": "content",
     "d": "description",
     "x": "command",
+    "t": "tool",
     "s": "string",
 }
 
@@ -17,6 +18,7 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
     - "c:" for content regexes
     - "d:" for description regexes
     - "x:" for raw command regexes
+    - "t:" for tool-entry regexes (per-item against CMD-META tools)
     - "s:" for literal strings (future)
 
     Args:
@@ -24,7 +26,7 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
 
     Returns:
         Tuple of (matcher_type, value) where matcher_type is one of
-        "path", "content", "description", "command", "string".
+        "path", "content", "description", "command", "tool", "string".
 
     Raises:
         ValueError: If matcher has no prefix or invalid prefix
@@ -36,6 +38,8 @@ def parse_matcher_string(matcher: str) -> tuple[str, str]:
         ('content', 'import os')
         >>> parse_matcher_string("d:(?i)deploy")
         ('description', '(?i)deploy')
+        >>> parse_matcher_string("t:git push")
+        ('tool', 'git push')
     """
     if not matcher or len(matcher) < 3:
         raise ValueError(f"Invalid matcher format: {matcher!r}")

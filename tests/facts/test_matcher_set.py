@@ -9,6 +9,9 @@ class TestMatcherSet:
         ms = MatcherSet()
         assert ms.path_globs == ()
         assert ms.content_regexes == ()
+        assert ms.description_regexes == ()
+        assert ms.command_regexes == ()
+        assert ms.tool_regexes == ()
 
     def test_with_path_globs(self):
         glob = compile_glob_pattern("**/*.py")
@@ -21,6 +24,12 @@ class TestMatcherSet:
         ms = MatcherSet(content_regexes=(pattern,))
         assert len(ms.content_regexes) == 1
         assert ms.content_regexes[0].pattern == "import os"
+
+    def test_with_tool_regexes(self):
+        pattern = re.compile("git push", re.MULTILINE)
+        ms = MatcherSet(tool_regexes=(pattern,))
+        assert len(ms.tool_regexes) == 1
+        assert ms.tool_regexes[0].pattern == "git push"
 
     def test_frozen(self):
         ms = MatcherSet()
